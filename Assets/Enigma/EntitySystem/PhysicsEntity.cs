@@ -8,6 +8,7 @@ namespace Enigma
     {
         Rigidbody body;
         public bool grounded;
+        public LayerMask collisionLayers;
 
         // Start is called before the first frame update
         void Start()

@@ -1,11 +1,12 @@
-//#include "../Include/Common.hlsl"
+#ifndef ECLIPSE_SIMPLE_INCLUDED
+#define ECLIPSE_SIMPLE_INCLUDED
 
-//TEXTURE2D(_AlbedoMap);
-//SAMPLER(sampler_AlbedoMap);
+#include "EclipseCommon.hlsl"
 
-//UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-  //  UNITY_DEFINE_INSTANCED_PROP(float4, _Tint)
-//UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+TEXTURE2D(_AlbedoMap);
+TEXTURE2D(_AlbedoMap_ST);
+SAMPLER(sampler_AlbedoMap);
+float4 _Tint;
 
 float4x4 unity_MatrixVP;
 float4x4 unity_ObjectToWorld;
@@ -13,6 +14,8 @@ float4x4 unity_ObjectToWorld;
 struct Attributes
 {
     float4 positionOS : POSITION;
+    float2 baseUV : TEXCOORD0;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct Varyings
@@ -26,12 +29,15 @@ Varyings vert (Attributes IN)
     Varyings OUT;
     float4 worldPos = mul(unity_ObjectToWorld, IN.positionOS);
     OUT.positionCS = mul(unity_MatrixVP, worldPos);
+    OUT.baseUV = IN.baseUV;
     return OUT;
 }
 
 float4 frag (Varyings IN) : SV_TARGET
 {
-    //float4 albedoMap = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
-    //float surfaceColor = /*albedoMap*/ _Tint;
-    return float4(1,0,0,1);//surfaceColor;
+    float4 albedoMap = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV );
+    float4 surfaceColor = albedoMap * _Tint;
+    return surfaceColor;
 }
+
+#endif

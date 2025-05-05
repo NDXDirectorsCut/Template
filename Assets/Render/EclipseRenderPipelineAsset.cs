@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
     
 // The CreateAssetMenu attribute lets you create instances of this class in the Unity Editor.
-[CreateAssetMenu(menuName = "Rendering/LustreRenderPipelineAsset")]
-public class LustreRenderPipelineAsset : RenderPipelineAsset
+[CreateAssetMenu(menuName = "Rendering/EclipseRenderPipelineAsset")]
+public class EclipseRenderPipelineAsset : RenderPipelineAsset
 {
     // This data can be defined in the Inspector for each Render Pipeline Asset
     public Color exampleColor;
@@ -14,6 +14,6 @@ public class LustreRenderPipelineAsset : RenderPipelineAsset
     protected override RenderPipeline CreatePipeline() {
         // Instantiate the Render Pipeline that this custom SRP uses for rendering, and pass a reference to this Render Pipeline Asset.
         // The Render Pipeline Instance can then access the configuration data defined above.
-        return new LustreRenderPipelineInstance(this);
+        return new EclipseRenderPipelineInstance(this);
     }
 }

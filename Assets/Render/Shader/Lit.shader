@@ -75,12 +75,15 @@ Shader "Eclipse/Lit"
             float3 frag (Varyings IN) : SV_TARGET
             {
                 float3 result;
-                //Basic Pass
+
                 float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
+                float3 normal = normalize(IN.normalWS);
+
+                //Basic Pass
                 result = GetDiffuse(albedo,_AlbedoTint,float3(0,0,0));
 
                 //Lighting Pass
-                float3 lighting = GetLighting(IN.normalWS); 
+                float3 lighting = smoothstep(0,1,GetLighting(normal)); 
                 result = result * lighting;
 
                 return result;

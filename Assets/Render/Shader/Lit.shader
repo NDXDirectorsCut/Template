@@ -37,7 +37,9 @@ Shader "Eclipse/Lit"
             #pragma fragment frag
             #pragma multi_compile_instancing    
 
-            #include "EclipseCommon.hlsl"
+            #include "EclipseCommon.hlsl"   
+            #include "BasicPass.hlsl"
+            #include "LightingPass.hlsl"
             
             TEXTURE2D(_AlbedoMap);
             TEXTURE2D(_AlbedoMap_ST);
@@ -70,9 +72,16 @@ Shader "Eclipse/Lit"
                 return OUT;
             }
 
-            float4 frag (Varyings IN) : SV_TARGET
+            float3 frag (Varyings IN) : SV_TARGET
             {
-                float4 result;
+                float3 result;
+                //Basic Pass
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
+                result = GetDiffuse(albedo,_AlbedoTint,float3(0,0,0));
+
+                //Lighting Pass
+                float3 lighting = GetLighting(IN.normalWS); 
+                result = result * lighting;
 
                 return result;
             }

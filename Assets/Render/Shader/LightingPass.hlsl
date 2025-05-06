@@ -3,11 +3,12 @@
 
 #include "EclipseCommon.hlsl"
 
-float3 GetLighting(float4 color,float3 normal)
+float3 GetLighting(float3 normal)
 {
-    float3 dir = (0,1,0);
+    float3 dir = float3(0,1,0);
+    float3 lighting = dot(normal,dir);
 
-    return 
+    return lighting; 
 }
 
 #endif

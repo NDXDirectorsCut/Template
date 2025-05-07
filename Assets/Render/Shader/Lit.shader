@@ -57,6 +57,7 @@ Shader "Eclipse/Lit"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                float3 positionWS : VAR_POSITION;
                 float3 normalWS : VAR_NORMAL;
                 float2 baseUV : VAR_BASE_UV;
             };
@@ -65,6 +66,7 @@ Shader "Eclipse/Lit"
             {
                 Varyings OUT;
                 float4 worldPos = mul(unity_ObjectToWorld, IN.positionOS);
+                OUT.positionWS = worldPos;
                 OUT.positionCS = mul(unity_MatrixVP, worldPos);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
                 OUT.baseUV = IN.baseUV;
@@ -78,12 +80,13 @@ Shader "Eclipse/Lit"
 
                 float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
                 float3 normal = normalize(IN.normalWS);
+                float3 position = IN.positionWS;
 
                 //Basic Pass
                 result = GetDiffuse(albedo,_AlbedoTint,float3(0,0,0));
 
                 //Lighting Pass
-                float3 lighting = smoothstep(0,1,GetLighting(normal)); 
+                float3 lighting = GetLighting(normal,position);
                 result = result * lighting;
 
                 return result;

@@ -28,6 +28,8 @@ float3 _WorldSpaceCameraPos;
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
-#define SCALE_UV(uv,name) (uv * name##_ST.xy + name##_ST.zw)
+float Square (float x) {
+	return x * x;
+}
 
 #endif

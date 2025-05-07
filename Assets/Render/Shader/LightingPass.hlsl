@@ -42,7 +42,7 @@ float3 GetPointLight(int id)
 	);
 
     float3 pointLighting = saturate(dot(normalWS,lightDir)) * (rangeAttenuation/distanceSqr);
-    pointLighting = smoothstep(0,1,pointLighting);
+    //pointLighting = smoothstep(0,1,pointLighting);
     pointLighting = pointLighting * color;
     return pointLighting;
 }
@@ -55,12 +55,12 @@ float3 GetLighting(float3 normal, float3 position)
     float3 lighting = float3(0,0,0);
     
     float3 dirLighting = float3(0,0,0);
-    /*
+    
     for(int i=0; i< _DirectionalLightCount; i++)
     {
         float3 dirLight = GetDirLight(i);
         dirLighting += dirLight;
-    }*/
+    }
 
     float3 pointLighting = float3(0,0,0);
     for(int j=0; j< _OtherLightCount; j++)

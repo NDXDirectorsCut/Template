@@ -49,12 +49,12 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             VisibleLight light = visibleLights[i];
             if(light.lightType == LightType.Directional && dirLightCount < maxDirectionalLights)
             {
-                SetupDirLight(i, ref light);
+                SetupDirLight(dirLightCount, ref light);
                 dirLightCount++;
             }
             if(light.lightType == LightType.Point && otherLightCount < maxOtherLights)
             {
-                SetupOtherLight(i, ref light);
+                SetupOtherLight(otherLightCount, ref light);
                 otherLightCount++;
             }
         }

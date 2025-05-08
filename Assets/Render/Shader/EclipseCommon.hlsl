@@ -28,8 +28,27 @@ float3 _WorldSpaceCameraPos;
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
+struct SurfaceData
+{
+    float3 diffuse;
+    float alpha;
+    float3 normal;
+    float3 emission;
+    float3 specularity;
+    float metalness;
+    float roughness;
+
+    float3 viewDir;
+    float3 position;
+};
+
 float Square (float x) {
 	return x * x;
+}
+
+float Inversion(float value, bool clamp)
+{
+
 }
 
 #endif

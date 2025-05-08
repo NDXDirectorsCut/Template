@@ -22,6 +22,7 @@ Shader "Eclipse/Lit"
         _MetalnessMap("Metalness", 2D) = "black" {}
         _MetalnessInv("Inversion", Float) = 1
         _RoughnessMap("Roughness", 2D) = "white" {}
+        _RoughnessInv("Inversion", Float) = 1
 
     }
     SubShader
@@ -52,11 +53,21 @@ Shader "Eclipse/Lit"
             float _NormalStrength;
             TEXTURE2D(_EmissionMap);
             TEXTURE2D(_EmissionMap_ST);
+            float _EmissionInv;
 
             TEXTURE2D(_SpecularMap);
-            TEXTURE2D(_Specular_ST);
+            TEXTURE2D(_SpecularMap_ST);
             SAMPLER(sampler_SpecularMap);
+            float _SpecularInv;
             float4 _SpecularTint;
+            TEXTURE2D(_MetalnessMap);
+            TEXTURE2D(_MetalnessMap_ST);
+            float _MetalnessInv;
+            TEXTURE2D(_RoughnessMap);
+            SAMPLER(sampler_RoughnessMap);
+            float _RoughnessInv;
+
+            SurfaceData surface;
 
             struct Attributes
             {
@@ -90,27 +101,45 @@ Shader "Eclipse/Lit"
             {
                 float3 result;
 
-                //From properties
+                /*/From properties
                 float3 normal = normalize(IN.normalWS);
                 float3 position = IN.positionWS;
                 float3 viewDir = normalize(_WorldSpaceCameraPos - position);
 
                 float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
                 float alpha = albedo.w;
-                
+                */
 
                 //Basic Pass
-                result = GetDiffuse(albedo,_AlbedoTint,float3(0,0,0));
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV); 
+                float3 emission = SAMPLE_TEXTURE2D(_EmissionMap,sampler_AlbedoMap, IN.baseUV);
+                float specularity = SAMPLE_TEXTURE2D(_SpecularMap,sampler_AlbedoMap,IN.baseUV);
+                float metalness = SAMPLE_TEXTURE2D(_MetalnessMap,sampler_AlbedoMap, IN.baseUV);
+                float roughness = SAMPLE_TEXTURE2D(_RoughnessMap,sampler_RoughnessMap, IN.baseUV);
+
+                surface =
+                GetSurface(
+                    albedo, //Albedo
+                    _AlbedoTint, //Albedo Tint
+                    1, // Alpha
+                    normalize(IN.normalWS), //Normal
+                    emission, //Emission
+                    specularity, //Specular
+                    _SpecularTint, //Specular Tint
+                    metalness, //Metalness
+                    roughness,//roughness, // Roughness
+
+                    normalize(_WorldSpaceCameraPos - IN.positionWS), // View Direction
+                    IN.positionWS // Position
+                );
 
                 //PBR Pass
 
-
-
                 //Lighting Pass
-                float3 lighting = GetLighting(normal,position);
-                result = result * lighting;
+                //float3 lighting = GetLighting(surface);
+                //result = result * lighting;
 
-                return GetPBR(viewDir,normal,albedo,1,0,.9);//abs(length(normal) - 1.0) * 10.0;;
+                return GetPBR(surface);//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL

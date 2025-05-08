@@ -124,22 +124,32 @@ Shader "Eclipse/Lit"
                     1, // Alpha
                     normalize(IN.normalWS), //Normal
                     emission, //Emission
-                    specularity, //Specular
+                    Inversion(specularity,_SpecularInv), //Specular
                     _SpecularTint, //Specular Tint
-                    metalness, //Metalness
-                    roughness,//roughness, // Roughness
+                    clamp(Inversion(metalness,_MetalnessInv),0,1), //Metalness
+                    Inversion(roughness,_RoughnessInv),//roughness, // Roughness
 
                     normalize(_WorldSpaceCameraPos - IN.positionWS), // View Direction
                     IN.positionWS // Position
                 );
-
-                //PBR Pass
+                
+                
 
                 //Lighting Pass
-                //float3 lighting = GetLighting(surface);
-                //result = result * lighting;
+                float3 lighting = GetLighting(surface);
 
-                return GetPBR(surface);//abs(length(normal) - 1.0) * 10.0;;
+                //PBR Pass
+                float3 specular = GetPBR(surface);
+                specular *= lighting;
+                surface.diffuse = surface.diffuse * 1-surface.metalness;
+                
+
+                //Final Pass
+                result = surface.diffuse;
+                result *= lighting;
+                result += specular/2;
+
+                return result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL

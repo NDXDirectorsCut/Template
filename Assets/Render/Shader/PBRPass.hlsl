@@ -4,17 +4,19 @@
 #include "EclipseCommon.hlsl"
 #include "LightingPass.hlsl"
 
-float GetSpecular(SurfaceData surface, float3 lightDir)
+float3 GetSpecular(SurfaceData surface, float3 lightDir)
 {
     float3 h = SafeNormalize(lightDir + surface.viewDir);
 	float nh2 = Square(saturate(dot(surface.normal, h)));
 	float lh2 = Square(saturate(dot(lightDir, h)));
-	float r2 = Square(surface.roughness);
+	float r2 = Square(clamp(surface.roughness,0.002,1));
 	float d2 = Square(nh2 * (r2 - 1.0) + 1.00001);
 	float normalization = surface.roughness * 4.0 + 2.0;
     float dirDot = saturate(dot(surface.normal,lightDir));
 
-	return r2 * dirDot / (d2 * max(0.1, lh2) * normalization);
+    float3 result = r2 * dirDot / (d2 * max(0.1, lh2) * normalization);
+
+	return result;
 }
 
 float3 GetPointSpecular(SurfaceData surface, int id)
@@ -50,6 +52,10 @@ float3 GetPBR(SurfaceData surface)
     {
         specularReflection += GetDirSpecular(surface,k2);
     }
+
+    specularReflection = lerp(specularReflection, specularReflection * surface.diffuse, surface.metalness);
+    specularReflection *= surface.specularity;
+    
 
     return specularReflection;
 }

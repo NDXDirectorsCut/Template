@@ -42,15 +42,15 @@ float3 GetPointLight(int id)
 	);
 
     float3 pointLighting = saturate(dot(normalWS,lightDir)) * (rangeAttenuation/distanceSqr);
-    //pointLighting = smoothstep(0,1,pointLighting);
+    pointLighting = smoothstep(0,1,pointLighting);
     pointLighting = pointLighting * color;
     return pointLighting;
 }
 
-float3 GetLighting(float3 normal, float3 position)
+float3 GetLighting(SurfaceData surface)
 {
-    normalWS = normal;
-    positionWS = position;
+    normalWS = surface.normal;
+    positionWS = surface.position;
 
     float3 lighting = float3(0,0,0);
     

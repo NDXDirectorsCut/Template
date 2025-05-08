@@ -46,9 +46,15 @@ float Square (float x) {
 	return x * x;
 }
 
-float Inversion(float value, bool clamp)
+float Inversion(float value, float inversion)
 {
+    float activeValue = value;
+    if(inversion < 0)
+    {
+        activeValue = 1 - value;
+    }
 
+    return activeValue * abs(inversion);
 }
 
 #endif

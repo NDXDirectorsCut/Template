@@ -40,11 +40,23 @@ Shader "Eclipse/Lit"
             #include "EclipseCommon.hlsl"   
             #include "BasicPass.hlsl"
             #include "LightingPass.hlsl"
+            #include "PBRPass.hlsl"
             
             TEXTURE2D(_AlbedoMap);
             TEXTURE2D(_AlbedoMap_ST);
             SAMPLER(sampler_AlbedoMap);
             float4 _AlbedoTint;
+            float _AlphaInv;
+            TEXTURE2D(_NormalMap);
+            TEXTURE2D(_NormalMap_ST);
+            float _NormalStrength;
+            TEXTURE2D(_EmissionMap);
+            TEXTURE2D(_EmissionMap_ST);
+
+            TEXTURE2D(_SpecularMap);
+            TEXTURE2D(_Specular_ST);
+            SAMPLER(sampler_SpecularMap);
+            float4 _SpecularTint;
 
             struct Attributes
             {
@@ -78,18 +90,27 @@ Shader "Eclipse/Lit"
             {
                 float3 result;
 
-                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
+                //From properties
                 float3 normal = normalize(IN.normalWS);
                 float3 position = IN.positionWS;
+                float3 viewDir = normalize(_WorldSpaceCameraPos - position);
+
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
+                float alpha = albedo.w;
+                
 
                 //Basic Pass
                 result = GetDiffuse(albedo,_AlbedoTint,float3(0,0,0));
+
+                //PBR Pass
+
+
 
                 //Lighting Pass
                 float3 lighting = GetLighting(normal,position);
                 result = result * lighting;
 
-                return result;
+                return GetPBR(viewDir,normal,albedo,1,0,.9);//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL

@@ -118,7 +118,10 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             // Tell Unity how to sort the geometry, based on the current Camera
             var sortingSettings = new SortingSettings(camera);
             // Create a DrawingSettings struct that describes which geometry to draw and how to draw it
-            DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings);
+            DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings)
+            {
+                perObjectData = PerObjectData.ReflectionProbes
+            };
             // Tell Unity how to filter the culling results, to further specify which geometry to draw
             // Use FilteringSettings.defaultValue to specify no filtering
             FilteringSettings filteringSettings = FilteringSettings.defaultValue;

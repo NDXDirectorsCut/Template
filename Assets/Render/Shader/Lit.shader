@@ -6,22 +6,23 @@ Shader "Eclipse/Lit"
 {
     Properties
     {
-        _AlbedoMap("Albedo", 2D) = "white" {}
+        [NoScaleOffset] _AlbedoMap("Albedo", 2D) = "white" {}
         _AlbedoTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
-        _AlphaMap("Alpha", 2D) = "white" {}
+        _ScaleOffset("ScaleOffset", Vector) = (1.0, 1.0,0,0)
+        [NoScaleOffset] _AlphaMap("Alpha", 2D) = "white" {}
         _AlphaInv("Inversion", Float) = 1
-        _NormalMap("Normal",2D) = "bump" {}
+        [NoScaleOffset] [Normal] _NormalMap("Normal",2D) = "bump" {}
         _NormalStrength("Strength", Float) = 1
-        _EmissionMap("Emission", 2D) = "black"
+        [NoScaleOffset] _EmissionMap("Emission", 2D) = "black"
         _EmissionInv("Inversion", Float) = 1
         // _EmissionTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
 
-        _SpecularMap("Specular", 2D) = "white" {}
+        [NoScaleOffset] _SpecularMap("Specular", 2D) = "white" {}
         _SpecularInv("Inversion", Float) = 1
         _SpecularTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0) 
-        _MetalnessMap("Metalness", 2D) = "black" {}
+        [NoScaleOffset] _MetalnessMap("Metalness", 2D) = "black" {}
         _MetalnessInv("Inversion", Float) = 1
-        _RoughnessMap("Roughness", 2D) = "white" {}
+        [NoScaleOffset]     _RoughnessMap("Roughness", 2D) = "white" {}
         _RoughnessInv("Inversion", Float) = 1
 
     }
@@ -44,26 +45,28 @@ Shader "Eclipse/Lit"
             #include "PBRPass.hlsl"
             
             TEXTURE2D(_AlbedoMap);
-            TEXTURE2D(_AlbedoMap_ST);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _AlbedoMap_ST);    
             SAMPLER(sampler_AlbedoMap);
             float4 _AlbedoTint;
+            float4 _ScaleOffset;
             float _AlphaInv;
             TEXTURE2D(_NormalMap);
-            TEXTURE2D(_NormalMap_ST);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _NormalMap_ST);  
             float _NormalStrength;
             TEXTURE2D(_EmissionMap);
-            TEXTURE2D(_EmissionMap_ST);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST);
             float _EmissionInv;
 
             TEXTURE2D(_SpecularMap);
-            TEXTURE2D(_SpecularMap_ST);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _SpecularMap_ST);
             SAMPLER(sampler_SpecularMap);
             float _SpecularInv;
             float4 _SpecularTint;
             TEXTURE2D(_MetalnessMap);
-            TEXTURE2D(_MetalnessMap_ST);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _MetalnessMap_ST);
             float _MetalnessInv;
             TEXTURE2D(_RoughnessMap);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _RoughnessMap_ST);
             SAMPLER(sampler_RoughnessMap);
             float _RoughnessInv;
 
@@ -82,6 +85,7 @@ Shader "Eclipse/Lit"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : VAR_POSITION;
                 float3 normalWS : VAR_NORMAL;
+                float4 tangentWS : VAR_TANGENT;
                 float2 baseUV : VAR_BASE_UV;
             };
 
@@ -92,6 +96,7 @@ Shader "Eclipse/Lit"
                 OUT.positionWS = worldPos;
                 OUT.positionCS = mul(unity_MatrixVP, worldPos);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                OUT .tangentWS = float4(TransformObjectToWorldDir(IN.tangentOS.xyz), IN.tangentOS.w);
                 OUT.baseUV = IN.baseUV;
 
                 return OUT;
@@ -111,18 +116,21 @@ Shader "Eclipse/Lit"
                 */
 
                 //Basic Pass
-                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV); 
-                float3 emission = SAMPLE_TEXTURE2D(_EmissionMap,sampler_AlbedoMap, IN.baseUV);
-                float specularity = SAMPLE_TEXTURE2D(_SpecularMap,sampler_AlbedoMap,IN.baseUV);
-                float metalness = SAMPLE_TEXTURE2D(_MetalnessMap,sampler_AlbedoMap, IN.baseUV);
-                float roughness = SAMPLE_TEXTURE2D(_RoughnessMap,sampler_RoughnessMap, IN.baseUV);
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw); 
+                float4 normalMap = SAMPLE_TEXTURE2D(_NormalMap,sampler_AlbedoMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float3 nrmMapWS = NormalTangentToWorld(DecodeNormal(normalMap,_NormalStrength),normalize(IN.normalWS),IN.tangentWS);
+
+                float3 emission = SAMPLE_TEXTURE2D(_EmissionMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float specularity = SAMPLE_TEXTURE2D(_SpecularMap,sampler_SpecularMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float metalness = SAMPLE_TEXTURE2D(_MetalnessMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float roughness = SAMPLE_TEXTURE2D(_RoughnessMap,sampler_RoughnessMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
 
                 surface =
                 GetSurface(
                     albedo, //Albedo
                     _AlbedoTint, //Albedo Tint
                     1, // Alpha
-                    normalize(IN.normalWS), //Normal
+                    nrmMapWS,//normalize(IN.normalWS), //Normal    
                     emission, //Emission
                     Inversion(specularity,_SpecularInv), //Specular
                     _SpecularTint, //Specular Tint
@@ -133,21 +141,23 @@ Shader "Eclipse/Lit"
                     IN.positionWS // Position
                 );
                 
-                
-
-                //Lighting Pass
-                float3 lighting = GetLighting(surface);
+                result = surface.diffuse;
 
                 //PBR Pass
-                float3 specular = GetPBR(surface);
-                specular *= lighting;
-                surface.diffuse = surface.diffuse * 1-surface.metalness;
-                
-
-                //Final Pass
-                result = surface.diffuse;
+                float3 metallicColor = GetMetalness(surface);
+                result = metallicColor;
+                float3 specular = GetSpecular(surface);
+                float3 reflection = GetSpecularReflection(surface,surface.viewDir);
+                result += specular;
+    
+                //Lighting Pass
+                float3 lighting = GetLighting(surface);
                 result *= lighting;
-                result += specular/2;
+                result += reflection;
+
+                surface.diffuse = surface.diffuse * 1-surface.metalness;
+
+                float3 reflTest = GetReflection(surface.normal,surface.normal,surface.roughness);
 
                 return result;//abs(length(normal) - 1.0) * 10.0;;
             }

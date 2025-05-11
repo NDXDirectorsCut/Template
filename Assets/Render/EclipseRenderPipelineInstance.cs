@@ -18,6 +18,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         otherLightColorId = Shader.PropertyToID("_OtherLightColors"),
         otherLightPositionId = Shader.PropertyToID("_OtherLightPositions");
 
+    static float environmentLighting = Shader.PropertyToID("_EnvironmentLighting");
+
     static Vector4[]
         dirLightColors = new Vector4[maxDirectionalLights],
         dirLightDirections = new Vector4[maxDirectionalLights],

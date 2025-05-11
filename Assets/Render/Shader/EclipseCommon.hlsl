@@ -29,6 +29,7 @@ float3 _WorldSpaceCameraPos;
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
 //#define TRANSFORM_TEX(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
 
 struct SurfaceData
@@ -54,14 +55,6 @@ float3 DecodeNormal (float4 sample, float strength) {
 	#endif
 }
 
-/*
-float3 GetNormalTS (float2 baseUV) {
-	float4 map = SAMPLE_TEXTURE2D(_NormalMap, sampler_BaseMap, baseUV);
-	float strength = INPUT_PROP(_NormalScale);
-	float3 normal = DecodeNormal(map, scale);
-	return normal;
-}*/
-
 float3 NormalTangentToWorld (float3 normalTS, float3 normalWS, float4 tangentWS) {
 	float3x3 tangentToWorld = CreateTangentToWorld(normalWS, tangentWS.xyz, tangentWS.w);
 	return TransformTangentToWorld(normalTS, tangentToWorld);
@@ -72,9 +65,9 @@ float Square (float x)
 	return x * x;
 }
 
-float Inversion(float value, float inversion)
+float3 Inversion(float3 value, float inversion)
 {
-    float activeValue = value;
+    float3 activeValue = value;
     if(inversion < 0)
     {
         activeValue = 1 - value;

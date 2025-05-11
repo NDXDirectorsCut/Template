@@ -9,7 +9,7 @@ SAMPLER(samplerunity_SpecCube0);
 
 float3 GetLightSpecular(SurfaceData surface, float3 lightDir)
 {
-    float roughness = PerceptualRoughnessToRoughness(surface.roughness);
+    float roughness = surface.roughness;//PerceptualRoughnessToRoughness(surface.roughness);
 
     float3 h = SafeNormalize(lightDir + surface.viewDir);
 	float nh2 = Square(saturate(dot(surface.normal, h)));
@@ -20,8 +20,8 @@ float3 GetLightSpecular(SurfaceData surface, float3 lightDir)
     float dirDot = saturate(dot(surface.normal,lightDir));
 
     float3 brdfSpecular = lerp(0.04, surface.diffuse, surface.metalness);
-    float3 result = r2 * dirDot / (d2 * max(0.1, lh2) * normalization) * brdfSpecular;
-
+    float3 result = r2 * dirDot / (d2 * max(0.1, lh2) * normalization);
+    result *= brdfSpecular;
 	return result;
 }
 
@@ -32,8 +32,14 @@ float3 GetPointSpecular(SurfaceData surface, int id)
 
     float3 dist = lightPos-surface.position;
     float3 lightDir = normalize(dist);
+    float distanceSqr = max(dot(dist, dist), 0.00001);
+    
+    float rangeAttenuation = Square(
+		saturate(1.0 - Square(distanceSqr * _OtherLightPositions[id].w))
+	);
 
-    return GetLightSpecular(surface,lightDir) * color;
+
+    return GetLightSpecular(surface,lightDir) * color * rangeAttenuation;
 }
 
 float3 GetDirSpecular(SurfaceData surface, int id)
@@ -76,13 +82,21 @@ float3 GetMetalness(SurfaceData surface)
 float3 GetSpecularReflection(SurfaceData surface, float3 viewDir = (0,0,0))
 {
     float roughness = PerceptualRoughnessToRoughness(surface.roughness);
+    float roughnessB = PerceptualRoughnessToMipmapLevel(clamp(surface.roughness,0,1));
 
     if(length(viewDir) == 0)
         viewDir = surface.viewDir;
     float3 reflectionDir = reflect(-viewDir,surface.normal);
-    float3 reflection = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectionDir, roughness*8);
+    float3 reflection = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectionDir, roughnessB);
     float3 brdfSpecular = lerp(0.04, surface.diffuse, surface.metalness);
+
+    float fresnel = Pow4(1.0 - saturate(dot(surface.normal, surface.viewDir)));
+    float fresnelStrength = saturate((1.0 -surface.roughness) + 1.0 - clamp(1 - surface.metalness,0.04,1));
+
+    //brdfSpecular = lerp(brdfSpecular, fresnelStrength,fresnel);
+
     reflection *= brdfSpecular * surface.specularity;
+    reflection /= surface.roughness * surface.roughness + 1;
     return reflection;
 }
 

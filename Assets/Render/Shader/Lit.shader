@@ -1,7 +1,3 @@
-// This defines a simple unlit Shader object that is compatible with a custom Scriptable Render Pipeline.
-// It applies a hardcoded color, and demonstrates the use of the LightMode Pass tag.
-// It is not compatible with SRP Batcher.
-
 Shader "Eclipse/Lit"
 {
     Properties
@@ -13,9 +9,9 @@ Shader "Eclipse/Lit"
         _AlphaInv("Inversion", Float) = 1
         [NoScaleOffset] [Normal] _NormalMap("Normal",2D) = "bump" {}
         _NormalStrength("Strength", Float) = 1
-        [NoScaleOffset] _EmissionMap("Emission", 2D) = "black"
+        [NoScaleOffset] _EmissionMap("Emission", 2D) = "black" {}
         _EmissionInv("Inversion", Float) = 1
-        // _EmissionTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
+        [HDR] _EmissionTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
 
         [NoScaleOffset] _SpecularMap("Specular", 2D) = "white" {}
         _SpecularInv("Inversion", Float) = 1
@@ -56,6 +52,7 @@ Shader "Eclipse/Lit"
             TEXTURE2D(_EmissionMap);
             UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST);
             float _EmissionInv;
+            float3 _EmissionTint;
 
             TEXTURE2D(_SpecularMap);
             UNITY_DEFINE_INSTANCED_PROP(float4, _SpecularMap_ST);
@@ -106,15 +103,6 @@ Shader "Eclipse/Lit"
             {
                 float3 result;
 
-                /*/From properties
-                float3 normal = normalize(IN.normalWS);
-                float3 position = IN.positionWS;
-                float3 viewDir = normalize(_WorldSpaceCameraPos - position);
-
-                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, IN.baseUV);
-                float alpha = albedo.w;
-                */
-
                 //Basic Pass
                 float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw); 
                 float4 normalMap = SAMPLE_TEXTURE2D(_NormalMap,sampler_AlbedoMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
@@ -131,11 +119,12 @@ Shader "Eclipse/Lit"
                     _AlbedoTint, //Albedo Tint
                     1, // Alpha
                     nrmMapWS,//normalize(IN.normalWS), //Normal    
-                    emission, //Emission
-                    Inversion(specularity,_SpecularInv), //Specular
+                    Inversion(emission,_EmissionInv), //Emission
+                    _EmissionTint, //Emission Tint
+                    clamp(Inversion(specularity,_SpecularInv),0,1), //Specular
                     _SpecularTint, //Specular Tint
                     clamp(Inversion(metalness,_MetalnessInv),0,1), //Metalness
-                    Inversion(roughness,_RoughnessInv),//roughness, // Roughness
+                    clamp(Inversion(roughness,_RoughnessInv),0,1), // Roughness
 
                     normalize(_WorldSpaceCameraPos - IN.positionWS), // View Direction
                     IN.positionWS // Position
@@ -153,7 +142,8 @@ Shader "Eclipse/Lit"
                 //Lighting Pass
                 float3 lighting = GetLighting(surface);
                 result *= lighting;
-                result += reflection;
+                result += reflection;// * (lighting+0.5);
+                result += surface.emission;
 
                 surface.diffuse = surface.diffuse * 1-surface.metalness;
 

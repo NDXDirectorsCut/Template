@@ -8,7 +8,8 @@ SurfaceData GetSurface(
     float3 tint,
     float alpha,
     float3 normal,
-    float3 emission,
+    float emission,
+    float3 emissionTint,
     float specularity,
     float3 specularityTint,
     float metalness,
@@ -22,7 +23,7 @@ SurfaceData GetSurface(
     surface.diffuse = albedo.xyz * tint;
     surface.alpha = albedo.w * alpha;
     surface.normal = normalize(normal);
-    surface.emission = emission;
+    surface.emission = emission * emissionTint;
     surface.specularity = specularity * specularityTint;
     surface.metalness = metalness;
     surface.roughness = roughness;

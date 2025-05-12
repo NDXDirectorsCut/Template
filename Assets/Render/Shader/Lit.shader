@@ -39,6 +39,7 @@ Shader "Eclipse/Lit"
             #include "BasicPass.hlsl"
             #include "LightingPass.hlsl"
             #include "PBRPass.hlsl"
+            #include "AmbientCubePass.hlsl"
             
             TEXTURE2D(_AlbedoMap);
             UNITY_DEFINE_INSTANCED_PROP(float4, _AlbedoMap_ST);    
@@ -145,9 +146,9 @@ Shader "Eclipse/Lit"
                 result += reflection;// * (lighting+0.5);
                 result += surface.emission;
 
-                surface.diffuse = surface.diffuse * 1-surface.metalness;
-
-                float3 reflTest = GetReflection(surface.normal,surface.normal,surface.roughness);
+                //Ambient Cube Pass
+                float3 ambientLight = GetAmbientLight(surface);
+                result += ambientLight/10;
 
                 return result;//abs(length(normal) - 1.0) * 10.0;;
             }

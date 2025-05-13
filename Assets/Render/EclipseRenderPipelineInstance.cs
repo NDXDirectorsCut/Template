@@ -75,6 +75,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
     {
         dirLightColors[id] = light.finalColor;
         dirLightDirections[id] = -light.localToWorldMatrix.GetColumn(2);
+        SetupShdDirLight(id,light);
     }
 
     void SetupOtherLight(int id,ref VisibleLight light)
@@ -98,15 +99,49 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
 	ShadowedDirectionalLight[] ShadowedDirectionalLights =
 		new ShadowedDirectionalLight[maxDirectionalLights];
+    int shadowedDirectionalLightCount;
 
-    int ShadowedDirectionalLightCount;
-    void SetupShdDirLight(Light light )
+    static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+
+    void SetupShdDirLight(int id, VisibleLight visLight)
     {
-        ShadowedDirectionalLights[ShadowedDirectionalLightCount] 
-        = new ShadowedDirectionalLight {
-            visibleLightIndex = visibleLightIndex
-        };
-        ShadowedDirectionalLightCount++;
+        if(shadowedDirectionalLightCount < maxDirectionalLights 
+        && visLight.light.shadows != LightShadows.None 
+        && visLight.light.shadowStrength > 0)
+        {
+            ShadowedDirectionalLights[shadowedDirectionalLightCount] 
+            = new ShadowedDirectionalLight {
+                visibleLightIndex = id
+            };
+            shadowedDirectionalLightCount++;
+        }
+    }
+
+    void RenderShadows(ScriptableRenderContext context)
+    {
+        int dirAtlasSize = (int)shadowSettings.directional.shadowAtlas;
+        shdBuffer.GetTemporaryRT(dirShadowAtlasId, dirAtlasSize, dirAtlasSize,
+        32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        shdBuffer.SetRenderTarget(
+			dirShadowAtlasId,
+			RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store
+		);
+        shdBuffer.ClearRenderTarget(true, false, Color.clear);
+
+        context.ExecuteCommandBuffer(shdBuffer);
+        shdBuffer.Clear();
+
+        for(int i=0; i<shadowedDirectionalLightCount; i++)
+        {
+            RenderDirShadow(i)
+        }
+
+    }
+
+    void RenderDirShadow(int id)
+    {
+        ShadowedDirectionalLight light = ShadowedDirectionalLights[id];
+        var shadowSettings = new ShadowDrawingSettings(cullingResults)
     }
 
     static LightingSettings lightingSettings;
@@ -142,6 +177,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             var cullingResults = context.Cull(ref cullingParameters);
 
             SetupLighting(cullingResults);
+            RenderShadows(shdBuffer,context);
 
             // Update the value of built-in shader variables, based on the current Camera
             context.SetupCameraProperties(camera);

@@ -4,13 +4,22 @@ using Unity.Collections;
     
 public class EclipseRenderPipelineInstance : RenderPipeline
 {
-    //Lighting
-    CommandBuffer cmdBuffer = new CommandBuffer
-    {
-        name = "Eclipse Render"
-    };
-    ShaderTagId shaderTagId = new ShaderTagId("Eclipse");
+    static LightingSettings lightingSettings;
+    static ShadowSettings shadowSettings;
 
+    // Use this variable to a reference to the Render Pipeline Asset that was passed to the constructor
+    private EclipseRenderPipelineAsset renderPipelineAsset;
+    
+    // The constructor has an instance of the ExampleRenderPipelineAsset class as its parameter.
+    public EclipseRenderPipelineInstance(EclipseRenderPipelineAsset asset,LightingSettings lightSet,ShadowSettings shadowSet) 
+    {
+        GraphicsSettings.lightsUseLinearIntensity = true;
+        renderPipelineAsset = asset;
+        lightingSettings = lightSet;
+        shadowSettings = shadowSet;
+    }
+
+    //Lighting
     const int 
         maxDirectionalLights = 32,
         maxOtherLights = 128;
@@ -87,11 +96,6 @@ public class EclipseRenderPipelineInstance : RenderPipeline
     }
 
     //Shadows
-    CommandBuffer shdBuffer = new CommandBuffer
-    {
-        name = "Eclipse Shadow"
-    };
-    
     struct ShadowedDirectionalLight 
     {
 		public int visibleLightIndex;
@@ -117,11 +121,11 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         }
     }
 
-    void RenderShadows(ScriptableRenderContext context)
+    void RenderShadows(ScriptableRenderContext context, CullingResults cullingResults)
     {
         int dirAtlasSize = (int)shadowSettings.directional.shadowAtlas;
         shdBuffer.GetTemporaryRT(dirShadowAtlasId, dirAtlasSize, dirAtlasSize,
-        32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        16, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         shdBuffer.SetRenderTarget(
 			dirShadowAtlasId,
 			RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store
@@ -131,37 +135,59 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         context.ExecuteCommandBuffer(shdBuffer);
         shdBuffer.Clear();
 
+        if(shadowedDirectionalLightCount > 0)
         for(int i=0; i<shadowedDirectionalLightCount; i++)
         {
-            RenderDirShadow(i)
+            RenderDirShadow(i, dirAtlasSize, context, cullingResults);
         }
 
+        context.ExecuteCommandBuffer(shdBuffer);
+        shdBuffer.Clear();
     }
 
-    void RenderDirShadow(int id)
+    void RenderDirShadow(int id, int tileSize, ScriptableRenderContext context, CullingResults cullingResults)
     {
         ShadowedDirectionalLight light = ShadowedDirectionalLights[id];
-        var shadowSettings = new ShadowDrawingSettings(cullingResults)
+
+        Matrix4x4 viewMatrix, projectionMatrix;
+		ShadowSplitData splitData;
+        cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+			light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f,
+			out viewMatrix, out projectionMatrix, out splitData
+		);
+
+        var shadowDrawSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex,
+		BatchCullingProjectionType.Orthographic);
+
+        shadowDrawSettings.splitData = splitData;
+
+        shdBuffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+        
+        context.ExecuteCommandBuffer(shdBuffer);
+        shdBuffer.Clear();
+
+        context.DrawShadows(ref shadowDrawSettings);
+
+        shdBuffer.ReleaseTemporaryRT(dirShadowAtlasId);
+        context.ExecuteCommandBuffer(shdBuffer);
+        shdBuffer.Clear();
     }
 
-    static LightingSettings lightingSettings;
-    static ShadowSettings shadowSettings;
 
-    // Use this variable to a reference to the Render Pipeline Asset that was passed to the constructor
-    private EclipseRenderPipelineAsset renderPipelineAsset;
-    
-    // The constructor has an instance of the ExampleRenderPipelineAsset class as its parameter.
-    public EclipseRenderPipelineInstance(EclipseRenderPipelineAsset asset,LightingSettings lightSet,ShadowSettings shadowSet) 
+    CommandBuffer cmdBuffer = new CommandBuffer
     {
-        GraphicsSettings.lightsUseLinearIntensity = true;
-        renderPipelineAsset = asset;
-        lightingSettings = lightSet;
-        shadowSettings = shadowSet;
-    }
+        name = "Eclipse Render"
+    };
+    ShaderTagId shaderTagId = new ShaderTagId("Eclipse");
+    
+    CommandBuffer shdBuffer = new CommandBuffer
+    {
+        name = "Eclipse Shadow"
+    };
+    ShaderTagId shadowTagId = new ShaderTagId("EclipseShadow");
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
-        // Iterate over all Cameras
         foreach (Camera camera in cameras)
         {
                 CameraRender(context,camera);
@@ -177,7 +203,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             var cullingResults = context.Cull(ref cullingParameters);
 
             SetupLighting(cullingResults);
-            RenderShadows(shdBuffer,context);
+            RenderShadows(context, cullingResults);
 
             // Update the value of built-in shader variables, based on the current Camera
             context.SetupCameraProperties(camera);
@@ -185,7 +211,6 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
             context.ExecuteCommandBuffer(cmdBuffer);
             cmdBuffer.Clear();
-
             
             // Tell Unity how to sort the geometry, based on the current Camera
             var sortingSettings = new SortingSettings(camera);

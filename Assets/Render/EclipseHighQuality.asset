@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8b016bbc05e8e640a2416adad77ed9b, type: 3}
   m_Name: EclipseHighQuality
   m_EditorClassIdentifier: 
-  exampleColor: {r: 0, g: 0, b: 0, a: 0}
-  exampleString: 
+  lightingSettings:
+    environmentLighting: 1
+    environmentReflection: 1
+  shadowSettings:
+    shadowDistance: 100
+    directional:
+      shadowAtlas: 1024

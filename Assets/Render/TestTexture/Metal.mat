@@ -100,7 +100,7 @@ Material:
     - _NormalStrength: 11.59
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RoughnessInv: 6.08
+    - _RoughnessInv: 1.41
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 1

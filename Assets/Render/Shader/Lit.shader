@@ -27,7 +27,7 @@ Shader "Eclipse/Lit"
         Pass
         {
             // The value of the LightMode Pass tag must match the ShaderTagId in ScriptableRenderContext.DrawRenderers
-            Tags { "LightMode" = "EclipseLightModeTag"}
+            Tags { "LightMode" = "Eclipse"}
 
             HLSLPROGRAM
             
@@ -143,12 +143,12 @@ Shader "Eclipse/Lit"
                 //Lighting Pass
                 float3 lighting = GetLighting(surface);
                 result *= lighting;
-                result += reflection;// * (lighting+0.5);
+                result += reflection * _EnvironmentReflection;// * (lighting+0.5);
                 result += surface.emission;
 
                 //Ambient Cube Pass
                 float3 ambientLight = GetAmbientLight(surface);
-                result += ambientLight/10;
+                result += ambientLight * _EnvironmentLighting;
 
                 return result;//abs(length(normal) - 1.0) * 10.0;;
             }

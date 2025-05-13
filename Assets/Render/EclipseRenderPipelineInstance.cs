@@ -4,6 +4,12 @@ using Unity.Collections;
     
 public class EclipseRenderPipelineInstance : RenderPipeline
 {
+    //Lighting
+    CommandBuffer cmdBuffer = new CommandBuffer
+    {
+        name = "Eclipse Render"
+    };
+    ShaderTagId shaderTagId = new ShaderTagId("Eclipse");
 
     const int 
         maxDirectionalLights = 32,
@@ -16,9 +22,10 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
         otherLightColorId = Shader.PropertyToID("_OtherLightColors"),
-        otherLightPositionId = Shader.PropertyToID("_OtherLightPositions");
-
-    static float environmentLighting = Shader.PropertyToID("_EnvironmentLighting");
+        otherLightPositionId = Shader.PropertyToID("_OtherLightPositions"),
+        
+        envLightId = Shader.PropertyToID("_EnvironmentLighting"),
+        envReflId = Shader.PropertyToID("_EnvironmentReflection");    
 
     static Vector4[]
         dirLightColors = new Vector4[maxDirectionalLights],
@@ -26,21 +33,6 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         otherLightColors = new Vector4[maxOtherLights],
         otherLightPositions = new Vector4[maxOtherLights];
-
-    // Use this variable to a reference to the Render Pipeline Asset that was passed to the constructor
-    private EclipseRenderPipelineAsset renderPipelineAsset;
-    
-    // The constructor has an instance of the ExampleRenderPipelineAsset class as its parameter.
-    public EclipseRenderPipelineInstance(EclipseRenderPipelineAsset asset) 
-    {
-        GraphicsSettings.lightsUseLinearIntensity = true;
-        renderPipelineAsset = asset;
-    }
-
-    CommandBuffer cmdBuffer = new CommandBuffer {
-        name = "Eclipse Render"
-    };
-    ShaderTagId shaderTagId = new ShaderTagId("EclipseLightModeTag");
 
     void SetupLighting(CullingResults cullingResults)
     {
@@ -74,6 +66,9 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             cmdBuffer.SetGlobalVectorArray(dirLightColorId, dirLightColors);
             cmdBuffer.SetGlobalVectorArray(dirLightDirectionId, dirLightDirections);
         }
+
+        cmdBuffer.SetGlobalFloat(envLightId, lightingSettings.environmentLighting);
+        cmdBuffer.SetGlobalFloat(envReflId, lightingSettings.environmentReflection);
     }
 
     void SetupDirLight(int id, ref VisibleLight light)
@@ -89,8 +84,47 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         position.w =  1f / Mathf.Max(light.range * light.range, 0.00001f);
         otherLightPositions[id] = position;
     }
+
+    //Shadows
+    CommandBuffer shdBuffer = new CommandBuffer
+    {
+        name = "Eclipse Shadow"
+    };
     
-    protected override void Render(ScriptableRenderContext context, Camera[] cameras) 
+    struct ShadowedDirectionalLight 
+    {
+		public int visibleLightIndex;
+	}
+
+	ShadowedDirectionalLight[] ShadowedDirectionalLights =
+		new ShadowedDirectionalLight[maxDirectionalLights];
+
+    int ShadowedDirectionalLightCount;
+    void SetupShdDirLight(Light light )
+    {
+        ShadowedDirectionalLights[ShadowedDirectionalLightCount] 
+        = new ShadowedDirectionalLight {
+            visibleLightIndex = visibleLightIndex
+        };
+        ShadowedDirectionalLightCount++;
+    }
+
+    static LightingSettings lightingSettings;
+    static ShadowSettings shadowSettings;
+
+    // Use this variable to a reference to the Render Pipeline Asset that was passed to the constructor
+    private EclipseRenderPipelineAsset renderPipelineAsset;
+    
+    // The constructor has an instance of the ExampleRenderPipelineAsset class as its parameter.
+    public EclipseRenderPipelineInstance(EclipseRenderPipelineAsset asset,LightingSettings lightSet,ShadowSettings shadowSet) 
+    {
+        GraphicsSettings.lightsUseLinearIntensity = true;
+        renderPipelineAsset = asset;
+        lightingSettings = lightSet;
+        shadowSettings = shadowSet;
+    }
+
+    protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
         // Iterate over all Cameras
         foreach (Camera camera in cameras)
@@ -107,11 +141,11 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             // Use the culling parameters to perform a cull operation, and store the results
             var cullingResults = context.Cull(ref cullingParameters);
 
+            SetupLighting(cullingResults);
+
             // Update the value of built-in shader variables, based on the current Camera
             context.SetupCameraProperties(camera);
             cmdBuffer.ClearRenderTarget(true, false, Color.clear); // color (0,0,0,0), totally transparent
-            
-            SetupLighting(cullingResults);
 
             context.ExecuteCommandBuffer(cmdBuffer);
             cmdBuffer.Clear();

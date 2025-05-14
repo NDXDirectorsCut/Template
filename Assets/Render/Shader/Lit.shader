@@ -21,6 +21,8 @@ Shader "Eclipse/Lit"
         [NoScaleOffset]     _RoughnessMap("Roughness", 2D) = "white" {}
         _RoughnessInv("Inversion", Float) = 1
 
+        [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
+
     }
     SubShader
     {
@@ -28,7 +30,7 @@ Shader "Eclipse/Lit"
         {
             // The value of the LightMode Pass tag must match the ShaderTagId in ScriptableRenderContext.DrawRenderers
             Tags { "LightMode" = "Eclipse"}
-
+            ZWrite [_ZWrite]
             HLSLPROGRAM
             
             #pragma vertex vert
@@ -90,11 +92,11 @@ Shader "Eclipse/Lit"
             Varyings vert (Attributes IN)
             {
                 Varyings OUT;
-                float4 worldPos = mul(unity_ObjectToWorld, IN.positionOS);
+                float3 worldPos = TransformObjectToWorld(IN.positionOS);
                 OUT.positionWS = worldPos;
-                OUT.positionCS = mul(unity_MatrixVP, worldPos);
+                OUT.positionCS = TransformWorldToHClip(worldPos);
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
-                OUT .tangentWS = float4(TransformObjectToWorldDir(IN.tangentOS.xyz), IN.tangentOS.w);
+                OUT.tangentWS = float4(TransformObjectToWorldDir(IN.tangentOS.xyz), IN.tangentOS.w);
                 OUT.baseUV = IN.baseUV;
 
                 return OUT;
@@ -156,19 +158,49 @@ Shader "Eclipse/Lit"
             ENDHLSL
         }
         Pass {
-			Tags {
-				"LightMode" = "ShadowCaster"
-			}
+			Tags { "LightMode" = "ShadowCaster"}
 
 			ColorMask 0
 
 			HLSLPROGRAM
 			#pragma target 3.5
-			#pragma shader_feature _CLIPPING
 			#pragma multi_compile_instancing
-			#pragma vertex shadowVert
-			#pragma fragment shadowFrag
-			#include "ShadowCasterPass.hlsl"
+			#pragma vertex ShadowCasterPassVertex
+			#pragma fragment ShadowCasterPassFragment 
+			#include "EclipseCommon.hlsl"  
+
+            TEXTURE2D(_AlbedoMap);
+            UNITY_DEFINE_INSTANCED_PROP(float4, _AlbedoMap_ST);    
+            SAMPLER(sampler_AlbedoMap);
+
+            struct Attributes {
+                float3 positionOS : POSITION;
+                float2 baseUV : TEXCOORD0;
+            };
+
+            struct Varyings {
+                float4 positionCS : SV_POSITION;
+                float2 baseUV : VAR_BASE_UV;
+            };
+
+            Varyings ShadowCasterPassVertex (Attributes IN)
+            {
+                Varyings OUT;
+                float3 worldPos = TransformObjectToWorld(IN.positionOS);
+                OUT.positionCS = TransformWorldToHClip(worldPos);
+                OUT.baseUV = IN.baseUV;
+
+                return OUT;
+            }
+
+            void ShadowCasterPassFragment (Varyings IN)
+            {
+                UNITY_SETUP_INSTANCE_ID(IN);
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV);
+                #if defined(_CLIPPING)
+                    clip(albedo.a - 0.5);
+                #endif
+            }
 			ENDHLSL
 		}
     }

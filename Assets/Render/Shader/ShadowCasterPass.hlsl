@@ -3,9 +3,9 @@
 
 #include "EclipseCommon.hlsl"  
 
-TEXTURE2D(_AlbedoMap);
-UNITY_DEFINE_INSTANCED_PROP(float4, _AlbedoMap_ST);    
-SAMPLER(sampler_AlbedoMap);
+TEXTURE2D(_BaseMap);
+UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST);    
+SAMPLER(sampler_BaseMap);
 
 struct Attributes {
 	float3 positionOS : POSITION;
@@ -17,7 +17,7 @@ struct Varyings {
 	float2 baseUV : VAR_BASE_UV;
 };
 
-Varyings shadowVert (Attributes IN)
+Varyings ShadowCasterPassVertex (Attributes IN)
 {
     Varyings OUT;
     float4 worldPos = mul(unity_ObjectToWorld, IN.positionOS);
@@ -27,9 +27,9 @@ Varyings shadowVert (Attributes IN)
     return OUT;
 }
 
-void shadowFrag (Varyings IN)
+void ShadowCasterPassFragment (Varyings IN)
 {
-	float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV);
+	float4 albedo = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap, IN.baseUV);
 }
 
 #endif

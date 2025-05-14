@@ -27,6 +27,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         name = "Eclipse Shadow"
     };
 
+    CullingResults cullingResults;
+
     //Settings
     static LightingSettings lightingSettings;
     static ShadowSettings shadowSettings;
@@ -101,7 +103,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
     {
         dirLightColors[id] = light.finalColor;
         dirLightDirections[id] = -light.localToWorldMatrix.GetColumn(2);
-        //SetupShdDirLight(id,light);
+        SetupShdDirLight(id,light.light);
     }
 
     void SetupOtherLight(int id,ref VisibleLight light)
@@ -119,37 +121,103 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         for(int i=0; i<visibleProbes.Length; i++)
         {
             VisibleReflectionProbe probe = visibleProbes[i];
-            Debug.Log(probe.reflectionProbe.gameObject);
+            //Debug.Log(probe.reflectionProbe.gameObject);
         }
         //cmdBuffer.SetGlobalTexture(reflectionTest,visibleProbes[0].texture);
     }
 
     //Shadows
-    static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+    int ShdDirLightCount = 0;
+    struct ShdDirLight
+    {
+        public int visibleLightIndex;
+    };
+
+    ShdDirLight[] ShdDirLights = new ShdDirLight[maxDirectionalLights];
+
+    void SetupShdDirLight(int id, Light light)
+    {
+        if(ShdDirLightCount < maxDirectionalLights 
+        && light.shadows != LightShadows.None
+        && light.shadowStrength > 0f
+        && cullingResults.GetShadowCasterBounds(id, out Bounds b))
+        {
+            ShdDirLights[ShdDirLightCount] = new ShdDirLight {
+                visibleLightIndex = id
+            };
+            ShdDirLightCount++;
+        }
+    }
+
+    static int 
+        dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
+		dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+
+    static Matrix4x4[]
+		dirShadowMatrices = new Matrix4x4[maxDirectionalLights];
+
+    Matrix4x4 ConvertToAtlasMatrix (Matrix4x4 m, Vector2 offset, int split) {
+		return m;
+	}
 
     void RenderShadows(ScriptableRenderContext context, CullingResults cullingResults)
     {
-        int dirAtlasSize = (int)shadowSettings.directional.shadowAtlas;
-        shdBuffer.GetTemporaryRT(dirShadowAtlasId, dirAtlasSize, dirAtlasSize,
-		32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        if(ShdDirLightCount > 0)
+        {
+            int dirAtlasSize = (int)shadowSettings.directional.shadowAtlas;
+            shdBuffer.GetTemporaryRT(dirShadowAtlasId, dirAtlasSize, dirAtlasSize,
+            32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
 
-        shdBuffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-        shdBuffer.ClearRenderTarget(true, false, Color.clear);
+            shdBuffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+            shdBuffer.ClearRenderTarget(true, false, Color.clear);
 
-        context.ExecuteCommandBuffer(shdBuffer);
-        shdBuffer.Clear();
+            context.ExecuteCommandBuffer(shdBuffer);
+            shdBuffer.Clear();
 
+            int split = ShdDirLightCount <= 1 ? 1 : 2;
+            int tileSize = dirAtlasSize/split;
+
+            for(int i=0; i<ShdDirLightCount; i++)
+            {
+                RenderDirShadow(i, split, tileSize, context);
+            }
+
+            shdBuffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+            context.ExecuteCommandBuffer(shdBuffer);
+            shdBuffer.Clear();
+        }
+        else
+        {
+            shdBuffer.GetTemporaryRT(dirShadowAtlasId, 4, 4,
+            32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        }
+        
+    }
+
+    void SetTileViewport(int id, int split, float tileSize)
+    {
+        Vector2 offset = new Vector2(id % split, id/split);
+        shdBuffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize,
+        tileSize, tileSize));
+    }
+
+    void RenderDirShadow(int id, int split, int tileSize, ScriptableRenderContext context)
+    {
+        //  Debug.Log(id);
+        ShdDirLight light = ShdDirLights[id];
         var shadowDrawSettings = new ShadowDrawingSettings(
-			cullingResults, 0,
+			cullingResults, light.visibleLightIndex,
 			BatchCullingProjectionType.Orthographic
 		);
 
         cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
-			0, 0, 1, Vector3.zero, dirAtlasSize, 0f,
+			light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f,
 			out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
 			out ShadowSplitData splitData
 		);
         shadowDrawSettings.splitData = splitData;
+        SetTileViewport(id,split,tileSize);
+        dirShadowMatrices[id] = projectionMatrix * viewMatrix;
         shdBuffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
 
         context.ExecuteCommandBuffer(shdBuffer);
@@ -157,10 +225,11 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         context.DrawShadows(ref shadowDrawSettings);
 
-        if (SystemInfo.usesReversedZBuffer) {
-			projectionMatrix.m20 = -projectionMatrix.m20;
-			projectionMatrix.m21 = -projectionMatrix.m21;
-			projectionMatrix.m22 = -projectionMatrix.m22;
+        if (SystemInfo.usesReversedZBuffer) 
+        {
+		    projectionMatrix.m20 = -projectionMatrix.m20;
+		    projectionMatrix.m21 = -projectionMatrix.m21;
+		    projectionMatrix.m22 = -projectionMatrix.m22;
 			projectionMatrix.m23 = -projectionMatrix.m23;
 		}
         
@@ -189,11 +258,12 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             camera.TryGetCullingParameters(out var cullingParameters);
             cullingParameters.shadowDistance = shadowSettings.shadowDistance;
             // Use the culling parameters to perform a cull operation, and store the results
-            var cullingResults = context.Cull(ref cullingParameters);
+            cullingResults = context.Cull(ref cullingParameters);
 
+            ShdDirLightCount = 0;
             SetupLighting(cullingResults);
             SetupReflections(cullingResults);
-            //RenderShadows(context, cullingResults);
+            RenderShadows(context, cullingResults);
 
             // Update the value of built-in shader variables, based on the current Camera
             context.SetupCameraProperties(camera);

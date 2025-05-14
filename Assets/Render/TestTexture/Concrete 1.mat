@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WeldedMetalPanels
+  m_Name: Concrete 1
   m_Shader: {fileID: 4800000, guid: 777067df1cad77f4fb5041e98664114d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -24,11 +24,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AlbedoMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 9101db8010f3d554f87ddfa4af111fb2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AlphaMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 4767335dabe7ae84d96d1dfbdc0511a9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -60,11 +60,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetalnessMap:
-        m_Texture: {fileID: 2800000, guid: c851056e4b9953b41b2f6d34465c7b96, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 36fb70b3f23352348850c9f25a76b2b7, type: 3}
+        m_Texture: {fileID: 2800000, guid: c4405bcfba75d9745af0d09986bcd298, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -76,7 +76,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoughnessMap:
-        m_Texture: {fileID: 2800000, guid: 2df52ad681c45fc46bc1875dac223e6b, type: 3}
+        m_Texture: {fileID: 2800000, guid: 83d8607ff3c19534a9a7541b7e567e81, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularMap:
@@ -97,7 +97,7 @@ Material:
     - _Metallic: 0
     - _MetalnessInv: 1
     - _Mode: 0
-    - _NormalStrength: 1
+    - _NormalStrength: 0.18
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 1
@@ -108,7 +108,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoTint: {r: 0.1331647, g: 0.24705882, b: 0.2451606, a: 1}
+    - _AlbedoTint: {r: 0.07098782, g: 1, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}

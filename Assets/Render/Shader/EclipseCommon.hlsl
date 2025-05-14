@@ -36,6 +36,22 @@ float3 _WorldSpaceCameraPos;
 float _EnvironmentLighting;
 float _EnvironmentReflection;
 
+#define MAX_DIRECTIONAL_LIGHT_COUNT 32
+#define MAX_OTHER_LIGHT_COUNT 128
+
+int _DirectionalLightCount;
+float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHT_COUNT];
+float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHT_COUNT];
+float4 _DirectionalLightShadowData[MAX_DIRECTIONAL_LIGHT_COUNT];
+float4x4 _DirectionalShadowMatrices[MAX_DIRECTIONAL_LIGHT_COUNT];
+
+int _OtherLightCount;
+float4 _OtherLightColors[MAX_OTHER_LIGHT_COUNT];
+float4 _OtherLightPositions[MAX_OTHER_LIGHT_COUNT];
+
+TextureCubeArray _ReflectionProbeArray;
+SAMPLER(sampler_ReflectionProbeArray);
+
 struct SurfaceData
 {
     float3 diffuse;

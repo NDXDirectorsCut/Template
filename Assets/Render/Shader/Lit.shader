@@ -36,9 +36,11 @@ Shader "Eclipse/Lit"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing    
+            #pragma target 5.0
 
             #include "EclipseCommon.hlsl"   
             #include "BasicPass.hlsl"
+            #include "VolumeShadows.hlsl"
             #include "LightingPass.hlsl"
             #include "PBRPass.hlsl"
             #include "AmbientCubePass.hlsl"
@@ -163,7 +165,7 @@ Shader "Eclipse/Lit"
 			ColorMask 0
 
 			HLSLPROGRAM
-			#pragma target 3.5
+			#pragma target 5.0
 			#pragma multi_compile_instancing
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment 

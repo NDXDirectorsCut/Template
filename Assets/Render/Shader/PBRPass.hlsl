@@ -81,13 +81,13 @@ float3 GetMetalness(SurfaceData surface)
 
 float3 GetSpecularReflection(SurfaceData surface, float3 viewDir = (0,0,0))
 {
-    float roughness = PerceptualRoughnessToRoughness(surface.roughness);
-    float roughnessB = PerceptualRoughnessToMipmapLevel(clamp(surface.roughness,0,1));
+    float roughness = RoughnessToPerceptualRoughness(surface.roughness);
+    float lod = PerceptualRoughnessToMipmapLevel(clamp(roughness,0,1));
 
     if(length(viewDir) == 0)
         viewDir = surface.viewDir;
     float3 reflectionDir = reflect(-viewDir,surface.normal);
-    float3 reflection = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectionDir, roughnessB);
+    float3 reflection = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectionDir, lod);
     float3 brdfSpecular = lerp(0.04, surface.diffuse, surface.metalness);
 
     float fresnel = Pow4(1.0 - saturate(dot(surface.normal, surface.viewDir)));

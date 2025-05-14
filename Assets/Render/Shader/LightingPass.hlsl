@@ -3,17 +3,6 @@
 
 #include "EclipseCommon.hlsl"
 
-#define MAX_DIRECTIONAL_LIGHT_COUNT 32
-#define MAX_OTHER_LIGHT_COUNT 128
-
-int _DirectionalLightCount;
-float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHT_COUNT];
-float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHT_COUNT];
-
-int _OtherLightCount;
-float4 _OtherLightColors[MAX_OTHER_LIGHT_COUNT];
-float4 _OtherLightPositions[MAX_OTHER_LIGHT_COUNT];
-
 float3 normalWS, positionWS;
 
 float3 GetDirLight(int id)
@@ -21,9 +10,13 @@ float3 GetDirLight(int id)
     float3 lightDir = _DirectionalLightDirections[id];
     float3 color = _DirectionalLightColors[id];
 
+    DirectionalShadowData dirShdData = GetDirShdData(id);
+    float shadowAttenuation = GetDirShadow(dirShdData,positionWS);
+
     float3 dirLighting = saturate(dot(normalWS,lightDir));
+    dirLighting *= shadowAttenuation;
     dirLighting = smoothstep(0,1,dirLighting);
-    dirLighting = dirLighting * color;
+    dirLighting *= color;
     return dirLighting;
 }
 

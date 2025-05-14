@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: EclipseHighQuality
   m_EditorClassIdentifier: 
   lightingSettings:
-    environmentLighting: 1
+    environmentLighting: 1.21
     environmentReflection: 1
   shadowSettings:
-    shadowDistance: 100
+    shadowDistance: 50
     directional:
-      shadowAtlas: 1024
+      shadowAtlas: 8192

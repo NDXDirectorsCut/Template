@@ -155,5 +155,21 @@ Shader "Eclipse/Lit"
             
             ENDHLSL
         }
+        Pass {
+			Tags {
+				"LightMode" = "ShadowCaster"
+			}
+
+			ColorMask 0
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma shader_feature _CLIPPING
+			#pragma multi_compile_instancing
+			#pragma vertex shadowVert
+			#pragma fragment shadowFrag
+			#include "ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
     }
 }

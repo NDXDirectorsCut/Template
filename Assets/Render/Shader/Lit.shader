@@ -190,6 +190,11 @@ Shader "Eclipse/Lit"
                 Varyings OUT;
                 float3 worldPos = TransformObjectToWorld(IN.positionOS);
                 OUT.positionCS = TransformWorldToHClip(worldPos);
+                #if UNITY_REVERSED_Z
+                OUT.positionCS.z = min(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                #else
+                OUT.positionCS.z = max(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                #endif
                 OUT.baseUV = IN.baseUV;
 
                 return OUT;

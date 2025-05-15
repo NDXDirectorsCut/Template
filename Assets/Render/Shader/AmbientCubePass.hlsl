@@ -11,11 +11,11 @@ float3 GetAmbientLight(SurfaceData surface)
     float3 brdfSpecular = lerp(0.04, surface.diffuse, surface.metalness);
 
     float4 cubeTest = float4(0,0,0,0);
-    cubeTest = _ReflectionProbeArray.SampleLevel(sampler_ReflectionProbeArray,float4(dir,1),1);//UNITY_SAMPLE_TEXCUBEARRAY(_ReflectionProbeArray,float4(dir,1));
+    //cubeTest = _ReflectionProbeArray.SampleLevel(sampler_ReflectionProbeArray,float4(dir,1),1);//UNITY_SAMPLE_TEXCUBEARRAY(_ReflectionProbeArray,float4(dir,1));
     
     //ambientLight *= brdfSpecular;
     //ambientLight /= 10;
-    return clamp(DecodeHDREnvironment(cubeTest,unity_SpecCube0_HDR)/10,0,1);
+    return DecodeHDREnvironment(ambientLight,unity_SpecCube0_HDR)/10;//clamp(DecodeHDREnvironment(cubeTest,unity_SpecCube0_HDR)/10,0,1);
 }
 
 #endif

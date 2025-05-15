@@ -36,18 +36,24 @@ float3 _WorldSpaceCameraPos;
 float _EnvironmentLighting;
 float _EnvironmentReflection;
 
-#define MAX_DIRECTIONAL_LIGHT_COUNT 32
-#define MAX_OTHER_LIGHT_COUNT 128
+#define MAX_DIRECTIONAL_LIGHTS 32
+#define MAX_DIRECTIONAL_SHADOWS 4
+#define MAX_CASCADES 4
+#define MAX_OTHER_LIGHTS 128
 
 int _DirectionalLightCount;
-float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHT_COUNT];
-float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHT_COUNT];
-float4 _DirectionalLightShadowData[MAX_DIRECTIONAL_LIGHT_COUNT];
-float4x4 _DirectionalShadowMatrices[MAX_DIRECTIONAL_LIGHT_COUNT];
+float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHTS];
+float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHTS];
+float4 _DirectionalLightShadowData[MAX_DIRECTIONAL_LIGHTS];
+int _CascadeCount;
+float4 _CascadeCullingSpheres[MAX_CASCADES];
+float4x4 _DirectionalShadowMatrices[MAX_DIRECTIONAL_SHADOWS * MAX_CASCADES];
 
 int _OtherLightCount;
-float4 _OtherLightColors[MAX_OTHER_LIGHT_COUNT];
-float4 _OtherLightPositions[MAX_OTHER_LIGHT_COUNT];
+float4 _OtherLightColors[MAX_OTHER_LIGHTS];
+float4 _OtherLightPositions[MAX_OTHER_LIGHTS];
+float4 _OtherLightDirections[MAX_OTHER_LIGHTS];
+float4 _OtherLightSpotAngles[MAX_OTHER_LIGHTS];
 
 TextureCubeArray _ReflectionProbeArray;
 SAMPLER(sampler_ReflectionProbeArray);
@@ -66,6 +72,9 @@ struct SurfaceData
     float3 position;
 };
 
+float DistanceSquared(float3 pA, float3 pB) {
+	return dot(pA - pB, pA - pB);
+}
 
 float3 DecodeNormal (float4 sample, float strength) {
 	#if defined(UNITY_NO_DXT5nm)

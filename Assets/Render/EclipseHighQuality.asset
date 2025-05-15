@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8b016bbc05e8e640a2416adad77ed9b, type: 3}
   m_Name: EclipseHighQuality
   m_EditorClassIdentifier: 
-  lightingSettings:
+  renderSettings:
     environmentLighting: 1
     environmentReflection: 1
-  shadowSettings:
-    shadowDistance: 20
-    directional:
-      shadowAtlas: 8192
+    shadowDistance: 500
+    dirShadowAtlas: 8192
+    cascadeCount: 4
+    cascadeRatio1: 0.05
+    cascadeRatio2: 0.25
+    cascadeRatio3: 0.5
+    othShadowAtlas: 1024

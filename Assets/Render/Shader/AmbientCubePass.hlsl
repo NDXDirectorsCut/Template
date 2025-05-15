@@ -15,7 +15,7 @@ float3 GetAmbientLight(SurfaceData surface)
     
     //ambientLight *= brdfSpecular;
     //ambientLight /= 10;
-    return DecodeHDREnvironment(ambientLight,unity_SpecCube0_HDR)/10;//clamp(DecodeHDREnvironment(cubeTest,unity_SpecCube0_HDR)/10,0,1);
+    return float3((DecodeHDREnvironment(ambientLight,unity_SpecCube0_HDR)/10).xyz );//clamp(DecodeHDREnvironment(cubeTest,unity_SpecCube0_HDR)/10,0,1);
 }
 
 #endif

@@ -25,6 +25,16 @@ float3 GetLightSpecular(SurfaceData surface, float3 lightDir)
 	return result;
 }
 
+float3 GetDirSpecular(SurfaceData surface, int id)
+{
+    float3 lightDir = _DirectionalLightDirections[id];
+    float3 color = _DirectionalLightColors[id];
+
+    float light = GetDirLight(id);
+
+    return GetLightSpecular(surface,lightDir) * color * light;
+}
+
 float3 GetPointSpecular(SurfaceData surface, int id)
 {
     float3 lightPos = _OtherLightPositions[id];
@@ -32,24 +42,24 @@ float3 GetPointSpecular(SurfaceData surface, int id)
 
     float3 dist = lightPos-surface.position;
     float3 lightDir = normalize(dist);
-    float distanceSqr = max(dot(dist, dist), 0.00001);
+
+    float light = GetOtherLight(id);
+    // float distanceSqr = max(dot(dist, dist), 0.00001);
     
-    float rangeAttenuation = Square(
-		saturate(1.0 - Square(distanceSqr * _OtherLightPositions[id].w))
-	);
+    // float shadowAttenuation = GetOthShadow(id,positionWS);
 
+    // float rangeAttenuation = Square(
+	// 	saturate(1.0 - Square(distanceSqr * _OtherLightPositions[id].w))
+	// );
 
-    return GetLightSpecular(surface,lightDir) * color * rangeAttenuation;
+    // float4 spotAngles = _OtherLightSpotAngles[id];
+    // float spotAttenuation = Square(
+	// 	saturate(dot(_OtherLightDirections[id].xyz, lightDir) *
+	// 	spotAngles.x + spotAngles.y)
+	// );
+
+    return GetLightSpecular(surface,lightDir) * color * light;
 }
-
-float3 GetDirSpecular(SurfaceData surface, int id)
-{
-    float3 lightDir = _DirectionalLightDirections[id];
-    float3 color = _DirectionalLightColors[id];
-
-    return GetLightSpecular(surface,lightDir) * color;
-}
-
 
 float3 GetSpecular(SurfaceData surface)
 {

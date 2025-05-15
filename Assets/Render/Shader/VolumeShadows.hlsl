@@ -6,7 +6,16 @@
 TEXTURE2D(_DirectionalShadowAtlas);
 SAMPLER(sampler_DirectionalShadowAtlas);
 
+TEXTURE2D(_OtherShadowAtlas);
+SAMPLER(sampler_OtherShadowAtlas);
+
 struct DirectionalShadowData 
+{
+	float strength;
+	int tileIndex;
+};
+
+struct OtherShadowData
 {
 	float strength;
 	int tileIndex;
@@ -27,7 +36,8 @@ int GetCascade(float3 positionWS)
 	return cascade;
 }
 
-DirectionalShadowData GetDirShdData (int id, float3 positionWS) {
+DirectionalShadowData GetDirShdData (int id, float3 positionWS)\
+{
 	DirectionalShadowData data;
 	data.strength = _DirectionalLightShadowData[id].x;
 	int cascade = GetCascade(positionWS);
@@ -37,6 +47,13 @@ DirectionalShadowData GetDirShdData (int id, float3 positionWS) {
 	return data;
 }
 
+OtherShadowData GetOthShdData(int id)
+{
+	OtherShadowData data;
+	data.strength = _OtherLightShadowData[id].x;
+	data.tileIndex = _OtherLightShadowData[id].y;
+	return data;
+}
 
 float GetDirShadow(int id,float3 positionWS)
 {
@@ -47,10 +64,25 @@ float GetDirShadow(int id,float3 positionWS)
 	}
 	float3 positionSTS = mul(
 		_DirectionalShadowMatrices[dirShadow.tileIndex],
-		float4(positionWS, 1.0)
-	).xyz;
+		float4(positionWS, 1.0)).xyz;
     float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);
+	return shadow;
+}
+
+float GetOthShadow(int id,float3 positionWS)
+{
+	OtherShadowData othShadow = GetOthShdData(id);
+	if(othShadow.strength <= 0.0)
+	{
+		return 0;
+	}
+	float4 positionSTS = mul(
+		_OtherShadowMatrices[othShadow.tileIndex],
+		float4(positionWS, 1.0));
+	float3 coord = positionSTS.xyz / positionSTS.w;
+	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+	shadow = lerp(1.0, shadow, othShadow.strength);
 	return shadow;
 }
 

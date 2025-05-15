@@ -49,6 +49,9 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         otherLightPositionId = Shader.PropertyToID("_OtherLightPositions"),
         otherLightDirectionsId = Shader.PropertyToID("_OtherLightDirections"),
         otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles"),
+        otherLightShadowDataId = Shader.PropertyToID("_OtherLightShadowData"),
+
+		shadowPancakingId = Shader.PropertyToID("_ShadowPancaking"),
         
         envLightId = Shader.PropertyToID("_EnvironmentLighting"),
         envReflId = Shader.PropertyToID("_EnvironmentReflection"),
@@ -62,7 +65,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         otherLightColors = new Vector4[maxOtherLights],
         otherLightPositions = new Vector4[maxOtherLights],
         otherLightDirections = new Vector4[maxOtherLights],
-        otherLightSpotAngles = new Vector4[maxOtherLights];
+        otherLightSpotAngles = new Vector4[maxOtherLights],
+        otherLightShadowData = new Vector4[maxOtherLights];
 
     CubemapArray reflectionProbeArray = new CubemapArray(256,8,TextureFormat.RGBAHalf,true);
 
@@ -75,17 +79,17 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             VisibleLight light = visibleLights[i];
             if(light.lightType == LightType.Directional && dirLightCount < maxDirectionalLights)
             {
-                SetupDirLight(dirLightCount, ref light);
+                SetupDirLight(dirLightCount, i, ref light);
                 dirLightCount++;
             }
             if(light.lightType == LightType.Point && otherLightCount < maxOtherLights)
             {
-                SetupOtherLight(otherLightCount, ref light);
+                SetupOtherLight(otherLightCount, i, ref light);
                 otherLightCount++;
             }
             if(light.lightType == LightType.Spot && otherLightCount < maxOtherLights)
             {
-                SetupOtherLight(otherLightCount, ref light);
+                SetupOtherLight(otherLightCount, i, ref light);
                 otherLightCount++;
             }
         }
@@ -97,6 +101,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             cmdBuffer.SetGlobalVectorArray(otherLightPositionId, otherLightPositions);
             cmdBuffer.SetGlobalVectorArray(otherLightDirectionsId, otherLightDirections);
             cmdBuffer.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
+            cmdBuffer.SetGlobalVectorArray(otherLightShadowDataId, otherLightShadowData);
         }
 
         cmdBuffer.SetGlobalInt(dirLightCountId, dirLightCount);
@@ -111,19 +116,21 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         cmdBuffer.SetGlobalFloat(envReflId, rndSettings.environmentReflection);
     }
 
-    void SetupDirLight(int id, ref VisibleLight light)
+    void SetupDirLight(int id, int visId, ref VisibleLight light)
     {
         dirLightColors[id] = light.finalColor;
         dirLightDirections[id] = -light.localToWorldMatrix.GetColumn(2);
-        dirLightShadowData[id] = SetupShdDirLight(id,light.light);
+        dirLightShadowData[id] = SetupShdDirLight(visId,light.light);
     }
 
-    void SetupOtherLight(int id,ref VisibleLight light)
+    void SetupOtherLight(int id, int visId, ref VisibleLight light)
     {
         otherLightColors[id] = light.finalColor;
         Vector4 position = light.localToWorldMatrix.GetColumn(3);
         position.w =  1f / Mathf.Max(light.range * light.range, 0.00001f);
         otherLightPositions[id] = position;
+        otherLightShadowData[id] = SetupShdOthLight(visId,light.light);
+
         if(light.lightType == LightType.Spot)
         {
             otherLightDirections[id] = -light.localToWorldMatrix.GetColumn(2);
@@ -134,6 +141,10 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             otherLightSpotAngles[id] = new Vector4(
                 angleRangeInv, -outerCos * angleRangeInv
             );
+        }
+        else
+        {
+            otherLightSpotAngles[id] = new Vector4(0f, 1f);
         }
     }
 
@@ -174,10 +185,13 @@ public class EclipseRenderPipelineInstance : RenderPipeline
     struct ShdOthLight
     {
         public int visibleLightIndex;
+        public bool spot;
+        public float slopeScaleBias;
+        public float normalBias;
     }
 
     ShdDirLight[] ShdDirLights = new ShdDirLight[maxDirectionalShadows];
-    ShdOthLight[] ShdOthLights = new ShdOthLight[maxOtherLights];
+    ShdOthLight[] ShdOthLights = new ShdOthLight[maxOtherShadows];
 
     Vector2 SetupShdDirLight(int id, Light light)
     {
@@ -198,14 +212,22 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         return Vector2.zero;
     }
 
-    void SetupShdOthLight(int id, Light light)
+    Vector2 SetupShdOthLight(int id, Light light)
     {
-        if(ShdOthLightCount < maxOtherLights
+        if(ShdOthLightCount < maxOtherShadows
         && light.shadows != LightShadows.None
-        && light.shadowStrength >0f)
+        && light.shadowStrength >0f
+        && cullingResults.GetShadowCasterBounds(id, out Bounds b))
         {
-            ShdOthLights[ShdOthLightCount] = new ShdOthLight{ visibleLightIndex = id };
+            ShdOthLights[ShdOthLightCount] = new ShdOthLight{ 
+                visibleLightIndex = id,
+                spot = light.type == LightType.Spot ? true : false
+                };
+            Vector2 v2 = new Vector2(light.shadowStrength,ShdOthLightCount);
+            ShdOthLightCount++;
+            return v2;
         }
+        return Vector2.zero;
     }
 
     static int 
@@ -222,7 +244,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
     static Matrix4x4[]
 		dirShadowMatrices = new Matrix4x4[maxDirectionalShadows * maxCascades],
-        othShadowMatrices = new Matrix4x4[maxOtherLights];
+        othShadowMatrices = new Matrix4x4[maxOtherShadows];
 
     Matrix4x4 ConvertToAtlasMatrix (Matrix4x4 m, Vector2 offset, int split) {
         if (SystemInfo.usesReversedZBuffer) {
@@ -247,6 +269,15 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 		return m;
 	}
 
+    Vector2 SetTileViewport(int id, int split, float tileSize)
+    {
+        Vector2 offset = new Vector2(id % split, id/split);
+        shdBuffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize,
+        tileSize, tileSize));
+        return offset;
+    }
+
+
     void RenderShadows(ScriptableRenderContext context, CullingResults cullingResults)
     {
         if(ShdDirLightCount > 0)
@@ -257,6 +288,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
             shdBuffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
             shdBuffer.ClearRenderTarget(true, false, Color.clear);
+            shdBuffer.SetGlobalFloat(shadowPancakingId, 1f);
 
             context.ExecuteCommandBuffer(shdBuffer);
             shdBuffer.Clear();
@@ -284,11 +316,13 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         if(ShdOthLightCount > 0)
         {
+            //Debug.Log(ShdOthLightCount);
             int othAtlasSize = (int)rndSettings.othShadowAtlas;
             shdBuffer.GetTemporaryRT(othShadowAtlasId, othAtlasSize, othAtlasSize,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
             shdBuffer.SetRenderTarget(othShadowAtlasId,RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
             shdBuffer.ClearRenderTarget(true, false, Color.clear);
+            shdBuffer.SetGlobalFloat(shadowPancakingId, 0f);
 
             context.ExecuteCommandBuffer(shdBuffer);
             shdBuffer.Clear();
@@ -299,7 +333,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
             for(int i=0; i<ShdOthLightCount; i++)
             {
-
+                RenderOthShadow(i,split,tileSize,context);
             }
             
             shdBuffer.SetGlobalMatrixArray(othShadowMatricesId, othShadowMatrices);
@@ -311,14 +345,6 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         {
             shdBuffer.SetGlobalTexture(othShadowAtlasId, dirShadowAtlasId);
         }
-    }
-
-    Vector2 SetTileViewport(int id, int split, float tileSize)
-    {
-        Vector2 offset = new Vector2(id % split, id/split);
-        shdBuffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize,
-        tileSize, tileSize));
-        return offset;
     }
 
     void RenderDirShadow(int id, int split, int tileSize, ScriptableRenderContext context)
@@ -371,9 +397,40 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 		shdBuffer.Clear();
     }
 
-    void RenderOthShadow()
+    void RenderOthShadow(int id, int split, int tileSize, ScriptableRenderContext context)
     {
+        ShdOthLight light = ShdOthLights[id];
+        var shadowDrawSettings = new ShadowDrawingSettings(
+            cullingResults, light.visibleLightIndex,
+            BatchCullingProjectionType.Perspective
+        );
+        if(light.spot == true)
+        {
+            cullingResults.ComputeSpotShadowMatricesAndCullingPrimitives(
+                light.visibleLightIndex, out Matrix4x4 viewMatrix,
+                out Matrix4x4 projectionMatrix, out ShadowSplitData splitData
+            );
+            shadowDrawSettings.splitData = splitData;
+            othShadowMatrices[id] = ConvertToAtlasMatrix(
+                projectionMatrix * viewMatrix,
+                SetTileViewport(id, split, tileSize),
+                split
+            );
+            shdBuffer.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
+            //shdBuffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
 
+            context.ExecuteCommandBuffer(shdBuffer);
+            shdBuffer.Clear();
+
+            context.DrawShadows(ref shadowDrawSettings);
+
+            context.ExecuteCommandBuffer(shdBuffer);
+		    shdBuffer.Clear();
+        }
+        else
+        {
+
+        }
     }
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
@@ -393,6 +450,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             cullingResults = context.Cull(ref cullingParameters);
 
             ShdDirLightCount = 0;
+            ShdOthLightCount = 0;
             SetupLighting(cullingResults);
             //SetupReflections(cullingResults);
             RenderShadows(context, cullingResults);

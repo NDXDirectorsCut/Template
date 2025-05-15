@@ -21,4 +21,4 @@ MonoBehaviour:
     cascadeRatio1: 0.05
     cascadeRatio2: 0.25
     cascadeRatio3: 0.5
-    othShadowAtlas: 1024
+    othShadowAtlas: 8192

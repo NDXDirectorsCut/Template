@@ -40,6 +40,7 @@ float _EnvironmentReflection;
 #define MAX_DIRECTIONAL_SHADOWS 4
 #define MAX_CASCADES 4
 #define MAX_OTHER_LIGHTS 128
+#define MAX_OTHER_SHADOWS 32
 
 int _DirectionalLightCount;
 float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHTS];
@@ -54,6 +55,8 @@ float4 _OtherLightColors[MAX_OTHER_LIGHTS];
 float4 _OtherLightPositions[MAX_OTHER_LIGHTS];
 float4 _OtherLightDirections[MAX_OTHER_LIGHTS];
 float4 _OtherLightSpotAngles[MAX_OTHER_LIGHTS];
+float4 _OtherLightShadowData[MAX_OTHER_LIGHTS];
+float4x4 _OtherShadowMatrices[MAX_OTHER_SHADOWS];
 
 TextureCubeArray _ReflectionProbeArray;
 SAMPLER(sampler_ReflectionProbeArray);

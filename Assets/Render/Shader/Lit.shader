@@ -41,8 +41,8 @@ Shader "Eclipse/Lit"
             #include "EclipseCommon.hlsl"   
             #include "BasicPass.hlsl"
             #include "VolumeShadows.hlsl"
-            #include "LightingPass.hlsl"
             #include "PBRPass.hlsl"
+            #include "LightingPass.hlsl"
             #include "AmbientCubePass.hlsl"
             
             TEXTURE2D(_AlbedoMap);
@@ -135,24 +135,29 @@ Shader "Eclipse/Lit"
                     IN.positionWS // Position
                 );
                 
-                result = surface.diffuse;
+                
 
                 //PBR Pass
                 float3 metallicColor = GetMetalness(surface);
-                result = metallicColor;
-                float3 specular = GetSpecular(surface);
-                float3 reflection = GetSpecularReflection(surface,surface.viewDir);
-                result += specular;
     
+                float3 reflection = GetSpecularReflection(surface,surface.viewDir);
+                
                 //Lighting Pass
-                float3 lighting = GetLighting(surface);
-                result *= lighting;
-                result += reflection * _EnvironmentReflection;// * (lighting+0.5);
-                result += surface.emission;
 
+                float3 lighting = GetLighting(surface);
+                float3 specular = GetSpecular(surface);
+                
                 //Ambient Cube Pass
                 float3 ambientLight = GetAmbientLight(surface);
-                result += ambientLight * _EnvironmentLighting;
+                
+
+                result = surface.diffuse;
+                result = metallicColor;
+                result += specular;
+                result *= lighting;
+                result += reflection * _EnvironmentReflection;
+                result += surface.emission;
+                result += ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;
 
                 return result;//abs(length(normal) - 1.0) * 10.0;;
             }
@@ -185,16 +190,22 @@ Shader "Eclipse/Lit"
                 float2 baseUV : VAR_BASE_UV;
             };
 
+            bool _ShadowPancaking;
+
             Varyings ShadowCasterPassVertex (Attributes IN)
             {
                 Varyings OUT;
                 float3 worldPos = TransformObjectToWorld(IN.positionOS);
                 OUT.positionCS = TransformWorldToHClip(worldPos);
-                #if UNITY_REVERSED_Z
-                OUT.positionCS.z = min(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #else
-                OUT.positionCS.z = max(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #endif
+
+                if(_ShadowPancaking)
+                {
+                    #if UNITY_REVERSED_Z
+                    OUT.positionCS.z = min(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                    #else
+                    OUT.positionCS.z = max(OUT.positionCS.z, OUT.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+                    #endif
+                }
                 OUT.baseUV = IN.baseUV;
 
                 return OUT;

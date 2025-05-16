@@ -8,17 +8,17 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Material.002
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: 2cec1d517a297374abb4a831d4e4b83d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Nk.Eye.L
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: f51595fe6a0ad484f8cd88d8b5e89310, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Nk.Eye.R
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: f51595fe6a0ad484f8cd88d8b5e89310, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -33,7 +33,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Nk.GloveCloth
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: ac1cde9e7c14ac847b88cfadf1812c8b, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -43,7 +43,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Nk.Nose
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: 8a152380dbe868e4ea69861ff178a890, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -53,7 +53,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Nk.Skin
-    second: {fileID: 2100000, guid: 1af79e2c8786c684b969b5cbc2808ba4, type: 2}
+    second: {fileID: 2100000, guid: 883456f804055284685cccab024ae197, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

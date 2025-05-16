@@ -212,9 +212,10 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         return Vector2.zero;
     }
 
-    Vector2 SetupShdOthLight(int id, Light light)
+    Vector4 SetupShdOthLight(int id, Light light)
     {
-        if(ShdOthLightCount < maxOtherShadows
+        int tileCount = ShdOthLightCount + (light.type == LightType.Spot ? 1 : 6);
+        if(tileCount < maxOtherShadows
         && light.shadows != LightShadows.None
         && light.shadowStrength >0f
         && cullingResults.GetShadowCasterBounds(id, out Bounds b))
@@ -223,11 +224,12 @@ public class EclipseRenderPipelineInstance : RenderPipeline
                 visibleLightIndex = id,
                 spot = light.type == LightType.Spot ? true : false
                 };
-            Vector2 v2 = new Vector2(light.shadowStrength,ShdOthLightCount);
-            ShdOthLightCount++;
-            return v2;
+            int isSpot = light.type == LightType.Spot ? 1 : 0;
+            Vector4 v4 = new Vector4(light.shadowStrength,ShdOthLightCount, isSpot, 0);
+            ShdOthLightCount = tileCount;
+            return v4;
         }
-        return Vector2.zero;
+        return Vector4.zero;
     }
 
     static int 
@@ -331,9 +333,10 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
             int tileSize = othAtlasSize/split;
 
-            for(int i=0; i<ShdOthLightCount; i++)
+            for(int i=0; i<ShdOthLightCount;)
             {
                 RenderOthShadow(i,split,tileSize,context);
+                i+= ShdOthLights[i].spot ? 1 : 6 ;
             }
             
             shdBuffer.SetGlobalMatrixArray(othShadowMatricesId, othShadowMatrices);
@@ -406,6 +409,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         );
         if(light.spot == true)
         {
+            //Debug.Log(light.visibleLightIndex);
             cullingResults.ComputeSpotShadowMatricesAndCullingPrimitives(
                 light.visibleLightIndex, out Matrix4x4 viewMatrix,
                 out Matrix4x4 projectionMatrix, out ShadowSplitData splitData
@@ -427,9 +431,31 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             context.ExecuteCommandBuffer(shdBuffer);
 		    shdBuffer.Clear();
         }
-        else
+        else if(light.spot == false)
         {
+            for(int i=0; i<6; i++)
+            {
+                //Debug.Log(i);
+                cullingResults.ComputePointShadowMatricesAndCullingPrimitives(
+                    light.visibleLightIndex, (CubemapFace)i, 0f,
+                    out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
+                    out ShadowSplitData splitData
+                );
+                shadowDrawSettings.splitData = splitData;
+                int tileId = id + i;
 
+                othShadowMatrices[tileId] = ConvertToAtlasMatrix(
+                    projectionMatrix * viewMatrix,
+                    SetTileViewport(tileId, split, tileSize),
+                    split
+                );
+                shdBuffer.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
+
+                context.ExecuteCommandBuffer(shdBuffer);
+                shdBuffer.Clear();
+
+                context.DrawShadows(ref shadowDrawSettings);
+            }
         }
     }
 

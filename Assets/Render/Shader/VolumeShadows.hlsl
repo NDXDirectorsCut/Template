@@ -19,6 +19,8 @@ struct OtherShadowData
 {
 	float strength;
 	int tileIndex;
+	bool isSpot;
+	bool lightDir;
 };
 
 int GetCascade(float3 positionWS)
@@ -52,6 +54,7 @@ OtherShadowData GetOthShdData(int id)
 	OtherShadowData data;
 	data.strength = _OtherLightShadowData[id].x;
 	data.tileIndex = _OtherLightShadowData[id].y;
+	data.isSpot = _OtherLightShadowData[id].z == 1.0;
 	return data;
 }
 
@@ -70,15 +73,28 @@ float GetDirShadow(int id,float3 positionWS)
 	return shadow;
 }
 
-float GetOthShadow(int id,float3 positionWS)
+float GetOthShadow(int id,float3 positionWS, float3 lightDir)
 {
 	OtherShadowData othShadow = GetOthShdData(id);
 	if(othShadow.strength <= 0.0)
 	{
-		return 0;
+		return 1;
 	}
+
+	float tileIndex = othShadow.tileIndex;
+
+	if (othShadow.isSpot) 
+	{
+		tileIndex = othShadow.tileIndex;
+	}
+	else
+	{
+		float faceOffset = CubeMapFaceID(-lightDir);
+		tileIndex += faceOffset;
+	}
+
 	float4 positionSTS = mul(
-		_OtherShadowMatrices[othShadow.tileIndex],
+		_OtherShadowMatrices[tileIndex],
 		float4(positionWS, 1.0));
 	float3 coord = positionSTS.xyz / positionSTS.w;
 	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;

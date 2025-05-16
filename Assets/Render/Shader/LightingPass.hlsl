@@ -30,7 +30,7 @@ float3 GetOtherLight(int id)
 
     float distanceSqr = max(dot(dist, dist), 0.00001);
 
-    float shadowAttenuation = GetOthShadow(id,positionWS);
+    float shadowAttenuation = GetOthShadow(id,positionWS,lightDir);
 
     float rangeAttenuation = Square(
 		saturate(1.0 - Square(distanceSqr * _OtherLightPositions[id].w))

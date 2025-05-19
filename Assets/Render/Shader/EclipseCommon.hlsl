@@ -93,8 +93,14 @@ float4x4 Move4x4(float4x4 m, float3 v)
     return m;
 }
 
-float DistanceSquared(float3 pA, float3 pB) {
+float DistanceSquared(float3 pA, float3 pB)
+{
 	return dot(pA - pB, pA - pB);
+}
+
+float Distance(float3 pA, float3 pB)
+{
+    return length(pA-pB);
 }
 
 float3 DecodeNormal (float4 sample, float strength) {

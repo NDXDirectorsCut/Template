@@ -72,13 +72,13 @@ float GetDirShadow(int id,float3 positionWS)
 	float3 positionSTS = mul(
 		mat,
 		float4(positionWS+test, 1.0)).xyz;
-	
-    float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS);// < positionSTS.z;
+
+    float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);
 	return shadow;//-positionSTS.z;
 }
 
-float GetOthShadow(int id,float3 positionWS, float3 lightDir)
+float3 GetOthShadow(int id,float3 positionWS, float3 lightDir)
 {
 	OtherShadowData othShadow = GetOthShdData(id);
 	if(othShadow.strength <= 0.0)
@@ -98,11 +98,21 @@ float GetOthShadow(int id,float3 positionWS, float3 lightDir)
 		tileIndex += faceOffset;
 	}
 
+		float3 lightPos = _OtherLightPositions[id];
+	//for(int smp=0; smp<_VolumeShadowSamples; smp++)
+	//{
+	//	float v1 = lightPos-positionWS;
+	//	float x2 = lightPos + (2,5,1);		
+	//}
+
 	float4 positionSTS = mul(
 		_OtherShadowMatrices[tileIndex],
 		float4(positionWS, 1.0));
 	float3 coord = positionSTS.xyz / positionSTS.w;
-	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord);//< coord.z;
+	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+
+	//float finalShadow = 0;
+
 	shadow = lerp(1.0, shadow, othShadow.strength);
 	return shadow;
 }

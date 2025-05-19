@@ -52,6 +52,9 @@ public class RndSettings
         cascadeRatio3 = .5f;
     [Header("Other")]
     public MapSize othShadowAtlas = MapSize._1024;
+    [Header("Post Processing")]
+    [SerializeField]
+	EclipsePostProcessingSettings postProcessingSettings = default;
 }
 
 // The CreateAssetMenu attribute lets you create instances of this class in the Unity Editor.

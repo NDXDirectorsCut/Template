@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PostProcessingStack
 {
@@ -10,10 +11,10 @@ public class PostProcessingStack
 
     // ScriptableRenderContext context;
 
-    public void RenderPostProcessing(CommandBuffer postBuffer, ScriptableRenderContext context)
-    {
-        postBuffer.Blit(sourceId, BuiltinRenderTextureType.CameraTarget);
-        context.ExecuteCommandBuffer(postBuffer);
-        postBuffer.Clear();
-    }
+    // public void RenderPostProcessing(CommandBuffer postBuffer, ScriptableRenderContext context)
+    // {
+    //     postBuffer.Blit(sourceId, BuiltinRenderTextureType.CameraTarget);
+    //     context.ExecuteCommandBuffer(postBuffer);
+    //     postBuffer.Clear();
+    // }
 }

@@ -71,7 +71,7 @@ float GetDirShadow(int id,float3 positionWS)
 
 	float3 positionSTS = mul(
 		mat,
-		float4(positionWS+test, 1.0)).xyz;
+		float4(positionWS, 1.0)).xyz;
 
     float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);

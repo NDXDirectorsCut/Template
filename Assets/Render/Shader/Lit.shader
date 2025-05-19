@@ -159,7 +159,7 @@ Shader "Eclipse/Lit"
                 result += surface.emission;
                 result += ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;
 
-                return result;//abs(length(normal) - 1.0) * 10.0;;
+                return result * 0.001 + lighting;//result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL

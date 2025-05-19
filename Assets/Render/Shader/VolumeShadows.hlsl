@@ -65,12 +65,17 @@ float GetDirShadow(int id,float3 positionWS)
 	{
 		return 1;
 	}
+	float3 test = float3(-1,0,0);
+	float4x4 mat = _DirectionalShadowMatrices[dirShadow.tileIndex];
+	//mat = Move4x4(mat,test);
+
 	float3 positionSTS = mul(
-		_DirectionalShadowMatrices[dirShadow.tileIndex],
-		float4(positionWS, 1.0)).xyz;
-    float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
+		mat,
+		float4(positionWS+test, 1.0)).xyz;
+	
+    float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS);// < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);
-	return shadow;
+	return shadow;//-positionSTS.z;
 }
 
 float GetOthShadow(int id,float3 positionWS, float3 lightDir)
@@ -97,7 +102,7 @@ float GetOthShadow(int id,float3 positionWS, float3 lightDir)
 		_OtherShadowMatrices[tileIndex],
 		float4(positionWS, 1.0));
 	float3 coord = positionSTS.xyz / positionSTS.w;
-	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord);//< coord.z;
 	shadow = lerp(1.0, shadow, othShadow.strength);
 	return shadow;
 }

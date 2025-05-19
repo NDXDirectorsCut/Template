@@ -84,6 +84,15 @@ struct SurfaceData
     float3 position;
 };
 
+float4x4 Move4x4(float4x4 m, float3 v)
+{
+    float x = v.x, y = v.y, z = v.z;
+    m[0][3] += x;
+    m[1][3] += y;
+    m[2][3] += z;
+    return m;
+}
+
 float DistanceSquared(float3 pA, float3 pB) {
 	return dot(pA - pB, pA - pB);
 }

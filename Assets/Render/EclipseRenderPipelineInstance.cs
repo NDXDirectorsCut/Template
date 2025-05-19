@@ -55,7 +55,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         
         envLightId = Shader.PropertyToID("_EnvironmentLighting"),
         envReflId = Shader.PropertyToID("_EnvironmentReflection"),
-        reflProbeId = Shader.PropertyToID("_ReflectionProbeArray");
+        reflProbeId = Shader.PropertyToID("_ReflectionProbeArray"),
+        volShdSampleId = Shader.PropertyToID("_VolumeShadowSamples");
 
     static Vector4[]
         dirLightColors = new Vector4[maxDirectionalLights],
@@ -114,6 +115,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         cmdBuffer.SetGlobalFloat(envLightId, rndSettings.environmentLighting);
         cmdBuffer.SetGlobalFloat(envReflId, rndSettings.environmentReflection);
+        cmdBuffer.SetGlobalInt(volShdSampleId, rndSettings.volumeShadowSamples);
     }
 
     void SetupDirLight(int id, int visId, ref VisibleLight light)

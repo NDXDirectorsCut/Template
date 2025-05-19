@@ -40,6 +40,8 @@ public class RndSettings
     [Range(0,10)] public float environmentReflection;
     [Header("Shadows")]
     public float shadowDistance = 100f;
+    [Range(0,256)]
+    public int volumeShadowSamples = 64; 
     [Header("Directional")]
     public MapSize dirShadowAtlas = MapSize._1024;
     [Range(1,4)] public int cascadeCount = 4;

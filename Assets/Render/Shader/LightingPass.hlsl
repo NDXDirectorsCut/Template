@@ -17,7 +17,7 @@ float3 GetDirLight(int id)
     dirLighting *= shadowAttenuation;
     dirLighting = smoothstep(0,1,dirLighting);
     dirLighting *= color;
-    return dirLighting;
+    return shadowAttenuation;//dirLighting;
 }
 
 float3 GetOtherLight(int id)
@@ -46,7 +46,7 @@ float3 GetOtherLight(int id)
     pointLighting /= distanceSqr;
     pointLighting = smoothstep(0,1,pointLighting);
     pointLighting = pointLighting * color;
-    return pointLighting;
+    return shadowAttenuation;//pointLighting;
 }
 
 float3 GetLighting(SurfaceData surface)

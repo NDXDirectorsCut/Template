@@ -15,10 +15,12 @@ MonoBehaviour:
   renderSettings:
     environmentLighting: 1
     environmentReflection: 1
-    shadowDistance: 500
+    shadowDistance: 100
+    volumeShadowSamples: 64
     dirShadowAtlas: 8192
     cascadeCount: 4
     cascadeRatio1: 0.05
     cascadeRatio2: 0.25
     cascadeRatio3: 0.5
     othShadowAtlas: 8192
+    postProcessingSettings: {fileID: 0}

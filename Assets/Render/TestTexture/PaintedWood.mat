@@ -100,7 +100,7 @@ Material:
     - _NormalStrength: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RoughnessInv: 0.2
+    - _RoughnessInv: 0.3
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 1
@@ -112,6 +112,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ScaleOffset: {r: 2, g: 2, b: 0, a: 0}
+    - _ScaleOffset: {r: 1, g: 1, b: 0, a: 0}
     - _SpecularTint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

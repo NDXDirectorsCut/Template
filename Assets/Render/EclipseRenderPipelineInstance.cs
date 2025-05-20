@@ -394,7 +394,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             context.ExecuteCommandBuffer(shdBuffer);
             shdBuffer.Clear();
 
-            shdBuffer.SetGlobalDepthBias(0.1f,0.1f);
+            shdBuffer.SetGlobalDepthBias(0.1f,1f);
             context.DrawShadows(ref shadowDrawSettings);
         }
 
@@ -460,6 +460,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             }
         }
     }
+
+    //PostProcessingStack postStack = new PostProcessingStack;
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {

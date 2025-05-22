@@ -4,13 +4,8 @@ using UnityEngine;
 
 namespace Enigma
 {
-    public class Action : MonoBehaviour
+    public class CameraEntity : Entity
     {
-        // Start is called before the first frame update
-        void Start()
-        {
-            
-        }
 
         // Update is called once per frame
         void Update()

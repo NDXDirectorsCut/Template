@@ -6,14 +6,14 @@ namespace Enigma
 {
     public class PhysicsEntity : Entity
     {
-        Rigidbody body;
+        [System.NonSerialized] public Rigidbody body;
         public bool grounded;
         public LayerMask collisionLayers;
 
         // Start is called before the first frame update
         void Start()
         {
-            
+            body = GetComponentInChildren<Rigidbody>();
         }
 
         // Update is called once per frame
@@ -29,7 +29,7 @@ namespace Enigma
                 if(Physics.Raycast(downPoint + Vector3.up*0.1f,-Vector3.up,out hit,0.25f,collisionLayers))
                 {
                     grounded = true;
-                    body.position -= Vector3.up * Vector3.Distance(downPoint,hit.point);
+                    //body.position -= Vector3.up * Vector3.Distance(downPoint,hit.point);
                 }
             }
         }

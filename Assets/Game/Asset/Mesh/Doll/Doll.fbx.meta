@@ -8,7 +8,17 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Black
+    second: {fileID: 2100000, guid: 6881785d3d39f8b4b840da18ed14f796, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Buckle
     second: {fileID: 2100000, guid: 81bb3201b2d0a59418ba1b7fff322485, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Face
+    second: {fileID: 2100000, guid: b7a74b55d178c3a42bed61bad1fc8928, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -28,12 +38,17 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Lip
-    second: {fileID: 2100000, guid: 21f505b5863e6214f87d83b067983ccd, type: 2}
+    second: {fileID: 2100000, guid: 289ef9f7f299e7049bf5d30ac02619c6, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Red
-    second: {fileID: 2100000, guid: 21f505b5863e6214f87d83b067983ccd, type: 2}
+    second: {fileID: 2100000, guid: 9b4b6618c9b770840b2ae601ce0fa390, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.White
+    second: {fileID: 2100000, guid: 8b473da795e522946b4c40a72ba84491, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -54,6 +69,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Mat.Wood.004
     second: {fileID: 2100000, guid: 10c5edf8d78d58a47b80e8f6e9abae74, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.005
+    second: {fileID: 2100000, guid: 8b473da795e522946b4c40a72ba84491, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

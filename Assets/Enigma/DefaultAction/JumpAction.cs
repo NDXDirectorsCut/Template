@@ -21,9 +21,9 @@ namespace Enigma
         // Update is called once per frame
         void FixedUpdate()
         {
-            if(entity.grounded == true)
+            if(entity.grounded == true && entity.GetState() != "Jump")
             {
-                if(jump.GetInput()!=0)
+                if(jump.GetInput()!=0 && entity.ChangeState("Jump"))
                 {
                     StartCoroutine(Jump(jumpForce,Vector3.up));
                 }

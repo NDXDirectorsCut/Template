@@ -79,6 +79,7 @@ struct SurfaceData
     float3 specularity;
     float metalness;
     float roughness;
+    float3 sheen;
 
     float3 viewDir;
     float3 position;

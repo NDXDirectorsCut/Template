@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEditor;
 using Unity.Collections;
     
 public class EclipseRenderPipelineInstance : RenderPipeline
@@ -493,7 +494,9 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             cmdBuffer.Clear();
             
             // Tell Unity how to sort the geometry, based on the current Camera
-            var sortingSettings = new SortingSettings(camera);
+            var sortingSettings = new SortingSettings(camera) {
+			    criteria = SortingCriteria.RenderQueue
+		    };
             // Create a DrawingSettings struct that describes which geometry to draw and how to draw it
             DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings)
             {
@@ -501,7 +504,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             };
             // Tell Unity how to filter the culling results, to further specify which geometry to draw
             // Use FilteringSettings.defaultValue to specify no filtering
-            FilteringSettings filteringSettings = FilteringSettings.defaultValue;
+            FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.all);//FilteringSettings.defaultValue;
             
             // Schedule a command to draw the Skybox if required
             if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null)
@@ -511,6 +514,12 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
             // Schedule a command to draw the geometry, based on the settings you have defined
             context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+
+            if (Handles.ShouldRenderGizmos())
+            {
+			    context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+			    context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+		    }
 
             shdBuffer.ReleaseTemporaryRT(dirShadowAtlasId);
             if(ShdOthLightCount > 0)

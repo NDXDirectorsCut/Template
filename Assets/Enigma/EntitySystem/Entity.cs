@@ -9,12 +9,12 @@ namespace Enigma
         [Header("Entity")]
 
         [SerializeField]
-        private string currentState = "Null";
+        private string currentState = "Idle";
         private string previousState;
         [System.NonSerialized]
         public bool actionLock = false;
-        [SerializeField]
-        private List<Action> actions = new List<Action>();
+        //[SerializeField]
+        //private List<Action> actions = new List<Action>();
 
         // Start is called before the first frame update
         void Start()
@@ -28,15 +28,15 @@ namespace Enigma
             previousState = currentState;
         }
 
-        public void ChangeState(
+        public bool ChangeState(
             string state, string requiredState = null, bool overrideLock = false)
         {
             if(actionLock == true && overrideLock == false)
-                return;
+                return false;
             if(requiredState != GetState() && requiredState != null)
-                return;
+                return false;
             currentState = state;
-
+            return true;
         }
 
         public string GetState()

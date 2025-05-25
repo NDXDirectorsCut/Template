@@ -7,16 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Concrete 1
+  m_Name: Fence008
   m_Shader: {fileID: 4800000, guid: 777067df1cad77f4fb5041e98664114d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _CLIPPING
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -24,11 +25,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AlbedoMap:
-        m_Texture: {fileID: 2800000, guid: 9101db8010f3d554f87ddfa4af111fb2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 745cb2dce26fc38489ff90a896795ceb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AlphaMap:
-        m_Texture: {fileID: 2800000, guid: 4767335dabe7ae84d96d1dfbdc0511a9, type: 3}
+        m_Texture: {fileID: 2800000, guid: a48fe0f64eda0df419d1bbadfed326d8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -60,11 +61,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetalnessMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 467d3ae19754fd24ea644b17f6ccfeb7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: c4405bcfba75d9745af0d09986bcd298, type: 3}
+        m_Texture: {fileID: 2800000, guid: 010de4e437aacf54dbf3a86134d47877, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -76,7 +77,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoughnessMap:
-        m_Texture: {fileID: 2800000, guid: 83d8607ff3c19534a9a7541b7e567e81, type: 3}
+        m_Texture: {fileID: 2800000, guid: e0aeb778732d60a40bae634f604d5a8d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SheenMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularMap:
@@ -87,31 +92,33 @@ Material:
     m_Floats:
     - _AlphaInv: 1
     - _BumpScale: 1
+    - _Clipping: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DstBlend: 0
-    - _EmissionInv: 1
+    - _DstBlend: 10
+    - _EmissionInv: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
     - _MetalnessInv: 1
     - _Mode: 0
-    - _NormalStrength: 1
+    - _NormalStrength: 0.2
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 1
-    - _SrcBlend: 1
+    - _SrcBlend: 5
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoTint: {r: 1, g: 0, b: 0, a: 1}
+    - _AlbedoTint: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ScaleOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ScaleOffset: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _SheenTint: {r: 1, g: 1, b: 1, a: 1}
     - _SpecularTint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

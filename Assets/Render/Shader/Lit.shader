@@ -9,19 +9,29 @@ Shader "Eclipse/Lit"
         _AlphaInv("Inversion", Float) = 1
         [NoScaleOffset] [Normal] _NormalMap("Normal",2D) = "bump" {}
         _NormalStrength("Strength", Float) = 1
-        [NoScaleOffset] _EmissionMap("Emission", 2D) = "black" {}
-        _EmissionInv("Inversion", Float) = 1
+        [NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
+        _EmissionInv("Inversion", Float) = 0
         [HDR] _EmissionTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
 
+        //PBR
         [NoScaleOffset] _SpecularMap("Specular", 2D) = "white" {}
         _SpecularInv("Inversion", Float) = 1
         _SpecularTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0) 
-        [NoScaleOffset] _MetalnessMap("Metalness", 2D) = "black" {}
-        _MetalnessInv("Inversion", Float) = 1
-        [NoScaleOffset]     _RoughnessMap("Roughness", 2D) = "white" {}
+        [NoScaleOffset] _MetalnessMap("Metalness", 2D) = "white" {}
+        _MetalnessInv("Inversion", Float) = 0
+        [NoScaleOffset] _RoughnessMap("Roughness", 2D) = "white" {}
         _RoughnessInv("Inversion", Float) = 1
 
+        //Extra PBR
+        [NoScaleOffset] _SheenMap("Sheen", 2D) = "white" {}
+        _SheenInv("Inversion", Float) = 0
+        _SheenTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
+
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 0
         [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
+        _Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+		[Toggle(_CLIPPING)] _Clipping ("Alpha Clipping", Float) = 0 
 
     }
     SubShader
@@ -30,11 +40,13 @@ Shader "Eclipse/Lit"
         {
             // The value of the LightMode Pass tag must match the ShaderTagId in ScriptableRenderContext.DrawRenderers
             Tags { "LightMode" = "Eclipse"}
+            Blend [_SrcBlend] [_DstBlend]
             ZWrite [_ZWrite]
             HLSLPROGRAM
             
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature _CLIPPING
             #pragma multi_compile_instancing    
             #pragma target 5.0
 
@@ -42,6 +54,7 @@ Shader "Eclipse/Lit"
             #include "BasicPass.hlsl"
             #include "VolumeShadows.hlsl"
             #include "PBRPass.hlsl"
+            #include "PBRExtraPass.hlsl"
             #include "LightingPass.hlsl"
             #include "AmbientCubePass.hlsl"
             
@@ -50,6 +63,8 @@ Shader "Eclipse/Lit"
             SAMPLER(sampler_AlbedoMap);
             float4 _AlbedoTint;
             float4 _ScaleOffset;
+            float _Cutoff;
+            TEXTURE2D(_AlphaMap);
             float _AlphaInv;
             TEXTURE2D(_NormalMap);
             UNITY_DEFINE_INSTANCED_PROP(float4, _NormalMap_ST);  
@@ -71,6 +86,11 @@ Shader "Eclipse/Lit"
             UNITY_DEFINE_INSTANCED_PROP(float4, _RoughnessMap_ST);
             SAMPLER(sampler_RoughnessMap);
             float _RoughnessInv;
+            TEXTURE2D(_SheenMap);
+            float _SheenInv;
+            float3 _SheenTint;
+
+            
 
             SurfaceData surface;
 
@@ -104,12 +124,13 @@ Shader "Eclipse/Lit"
                 return OUT;
             }
 
-            float3 frag (Varyings IN) : SV_TARGET
+            float4 frag (Varyings IN) : SV_TARGET
             {
                 float3 result;
 
                 //Basic Pass
                 float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw); 
+                float4 alpha = SAMPLE_TEXTURE2D(_AlphaMap,sampler_AlbedoMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float4 normalMap = SAMPLE_TEXTURE2D(_NormalMap,sampler_AlbedoMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float3 nrmMapWS = NormalTangentToWorld(DecodeNormal(normalMap,_NormalStrength),normalize(IN.normalWS),IN.tangentWS);
 
@@ -117,35 +138,34 @@ Shader "Eclipse/Lit"
                 float specularity = SAMPLE_TEXTURE2D(_SpecularMap,sampler_SpecularMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float metalness = SAMPLE_TEXTURE2D(_MetalnessMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float roughness = SAMPLE_TEXTURE2D(_RoughnessMap,sampler_RoughnessMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float sheenTex = SAMPLE_TEXTURE2D(_SheenMap, sampler_RoughnessMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
 
                 surface =
                 GetSurface(
-                    albedo, //Albedo
-                    _AlbedoTint, //Albedo Tint
-                    1, // Alpha
-                    nrmMapWS,//normalize(IN.normalWS), //Normal    
-                    Inversion(emission,_EmissionInv), //Emission
-                    _EmissionTint, //Emission Tint
+                    float4(albedo.rgb,1), // Albedo
+                    _AlbedoTint, // Albedo Tint
+                    saturate(Inversion(alpha,_AlphaInv)), // Alpha
+                    nrmMapWS, // Normal    
+                    Inversion(emission,_EmissionInv), // Emission
+                    _EmissionTint, // Emission Tint
                     clamp(Inversion(specularity,_SpecularInv),0,1), //Specular
-                    _SpecularTint, //Specular Tint
-                    clamp(Inversion(metalness,_MetalnessInv),0,1), //Metalness
+                    _SpecularTint, // Specular Tint
+                    clamp(Inversion(metalness,_MetalnessInv),0,1), // Metalness
                     clamp(Inversion(roughness,_RoughnessInv),0,1), // Roughness
+                    Inversion(sheenTex,_SheenInv),// Sheen
+                    _SheenTint,
 
                     normalize(_WorldSpaceCameraPos - IN.positionWS), // View Direction
                     IN.positionWS // Position
                 );
                 
-                
-
-                //PBR Pass
                 float3 metallicColor = GetMetalness(surface);
-    
                 float3 reflection = GetSpecularReflection(surface,surface.viewDir);
-                
-                //Lighting Pass
 
+                //Lighting
                 float3 lighting = GetLighting(surface);
                 float3 specular = GetSpecular(surface);
+                float3 sheen = GetSheen(surface);
                 
                 //Ambient Cube Pass
                 float3 ambientLight = GetAmbientLight(surface);
@@ -154,12 +174,17 @@ Shader "Eclipse/Lit"
                 result = surface.diffuse;
                 result = metallicColor;
                 result += specular;
+                result += sheen;
                 result *= lighting;
                 result += reflection * _EnvironmentReflection;
                 result += surface.emission;
                 result += ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;
 
-                return result;//result;//abs(length(normal) - 1.0) * 10.0;;
+                #ifdef _CLIPPING
+                    clip(surface.alpha - _Cutoff);
+                    surface.alpha = surface.alpha > _Cutoff;
+                #endif
+                return float4(result,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL
@@ -171,6 +196,7 @@ Shader "Eclipse/Lit"
 
 			HLSLPROGRAM
 			#pragma target 5.0
+            #pragma shader_feature _CLIPPING
 			#pragma multi_compile_instancing
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment 
@@ -179,6 +205,9 @@ Shader "Eclipse/Lit"
             TEXTURE2D(_AlbedoMap);
             UNITY_DEFINE_INSTANCED_PROP(float4, _AlbedoMap_ST);    
             SAMPLER(sampler_AlbedoMap);
+            TEXTURE2D(_AlphaMap);
+            float4 _ScaleOffset;
+            float _Cutoff;
 
             struct Attributes {
                 float3 positionOS : POSITION;
@@ -214,10 +243,14 @@ Shader "Eclipse/Lit"
             void ShadowCasterPassFragment (Varyings IN)
             {
                 UNITY_SETUP_INSTANCE_ID(IN);
-                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV);
-                #if defined(_CLIPPING)
-                    clip(albedo.a - 0.5);
+                float4 albedo = SAMPLE_TEXTURE2D(_AlbedoMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float4 alpha = SAMPLE_TEXTURE2D(_AlphaMap,sampler_AlbedoMap,IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float cut = 0.5f;
+                #ifdef _CLIPPING
+                    cut = _Cutoff;
                 #endif
+
+                clip((albedo.a*alpha) - cut);
             }
 			ENDHLSL
 		}

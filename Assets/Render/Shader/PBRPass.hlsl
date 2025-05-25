@@ -44,7 +44,7 @@ float3 GetPointSpecular(SurfaceData surface, int id)
     float3 lightDir = normalize(dist);
 
     float light = GetOtherLight(id);
-    // float distanceSqr = max(dot(dist, dist), 0.00001);
+    float distanceSqr = max(dot(dist, dist), 0.00001);
     
     // float shadowAttenuation = GetOthShadow(id,positionWS);
 
@@ -58,7 +58,7 @@ float3 GetPointSpecular(SurfaceData surface, int id)
 	// 	spotAngles.x + spotAngles.y)
 	// );
 
-    return GetLightSpecular(surface,lightDir) * color * light;
+    return GetLightSpecular(surface,lightDir) * color * light * 1/distanceSqr;
 }
 
 float3 GetSpecular(SurfaceData surface)
@@ -74,10 +74,7 @@ float3 GetSpecular(SurfaceData surface)
     {
         specularReflection += GetDirSpecular(surface,k2);
     }
-
-    //specularReflection = lerp(specularReflection, specularReflection * surface.diffuse, surface.metalness);
     specularReflection *= surface.specularity;
-    
 
     return specularReflection;
 }

@@ -12,6 +12,7 @@ namespace Enigma
         public ActionInput vertical;
         [Header("Variables")]
         public float turnSpeed;
+        public float turnTime;
 
         public Transform orbitTarget;
         public float orbitDistance;
@@ -19,7 +20,15 @@ namespace Enigma
         
         public Transform lookTarget;
         public float lookTime;
+
+        public LayerMask collisionLayers;
+
+        float hor,ver;
         
+        void Start()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         void FixedUpdate()
         {
@@ -33,6 +42,13 @@ namespace Enigma
                 StartCoroutine(Look(lookTarget, lookTime));
             }
 
+            if(orbitTarget!= null)
+            {
+                hor = horizontal.GetInput();
+                ver = vertical.GetInput();
+                StartCoroutine(Turn(hor,ver,orbitTarget));
+                StartCoroutine(Collide(orbitTarget.position));
+            }
         }
 
         Vector3 horVelocity;
@@ -63,9 +79,34 @@ namespace Enigma
             yield return new WaitForFixedUpdate();
         }
 
-        IEnumerator Turn(transform orbitTarget,Transform lookTarget)
+        Vector2 turnVelo;
+        Vector2 angles;
+        IEnumerator Turn(float turnX,float turnY, Transform orbitTarget)
         {
+            angles.x = Mathf.SmoothDamp(angles.x,turnX*turnSpeed,ref turnVelo.x,turnTime, 25, Time.fixedDeltaTime);
+            Quaternion xRot = Quaternion.AngleAxis(angles.x,Vector3.up);
+            transform.position = 
+                (xRot*(transform.position-orbitTarget.position)) + orbitTarget.position;
+            transform.forward = 
+                xRot * transform.forward;
+
+            angles.y = Mathf.SmoothDamp(angles.y,turnY*turnSpeed,ref turnVelo.y,turnTime, 25, Time.fixedDeltaTime);
+            Quaternion yRot = Quaternion.AngleAxis(angles.y,transform.right);
+            transform.position = (yRot *(transform.position-orbitTarget.position))
+                + orbitTarget.position;
+            transform.forward = yRot*transform.forward;
             
+            yield return new WaitForFixedUpdate();
+        }
+
+        IEnumerator Collide(Vector3 castPos)
+        {
+            RaycastHit hit;
+            if(Physics.Raycast(castPos,-transform.forward,out hit,orbitDistance,collisionLayers))
+            {
+                transform.position = hit.point;
+            }
+            yield return new WaitForFixedUpdate();
         }
     }
 }

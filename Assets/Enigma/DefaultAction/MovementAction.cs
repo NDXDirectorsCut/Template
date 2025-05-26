@@ -52,7 +52,7 @@ namespace Enigma
             {
                 if(inputDir != Vector3.zero)
                 {
-                    StartCoroutine(MoveAir(inputDir,walkSpeed));
+                    StartCoroutine(MoveAir(inputDir,walkSpeed*walkSpeed*2/entity.body.velocity.magnitude));
                 }
             }
         }
@@ -60,8 +60,8 @@ namespace Enigma
         float refVelo;
         IEnumerator Move(Vector3 moveDir, float moveSpeed, float moveTime)
         {
-            float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up);
-            float finalTurnAngle = turnAngle * Time.fixedDeltaTime * turnSpeed;
+            float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up) * Time.fixedDeltaTime ;
+            float finalTurnAngle = turnAngle * turnSpeed;
             finalTurnAngle = Mathf.Abs(finalTurnAngle) > Mathf.Abs(turnAngle) ? turnAngle : finalTurnAngle;
 
             forwardDir = Quaternion.AngleAxis(finalTurnAngle, Vector3.up) * forwardDir;

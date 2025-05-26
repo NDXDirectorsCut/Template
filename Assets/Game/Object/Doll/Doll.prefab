@@ -502,6 +502,8 @@ MonoBehaviour:
   vertical:
     name: Mouse Y
     inputType: 1
+  turnSpeed: 4
+  turnTime: 0.15
   orbitTarget: {fileID: 8231413064136883391}
   orbitDistance: 3
   orbitTime: {x: 0.2, y: 0.5}

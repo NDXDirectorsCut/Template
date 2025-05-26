@@ -60,9 +60,9 @@ namespace Enigma
         float refVelo;
         IEnumerator Move(Vector3 moveDir, float moveSpeed, float moveTime)
         {
-            float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up) * Time.fixedDeltaTime ;
-            float finalTurnAngle = turnAngle * turnSpeed;
-            finalTurnAngle = Mathf.Abs(finalTurnAngle) > Mathf.Abs(turnAngle) ? turnAngle : finalTurnAngle;
+            float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up) ;
+            float finalTurnAngle = turnAngle * Time.fixedDeltaTime * turnSpeed;
+            finalTurnAngle = Mathf.Abs(finalTurnAngle) > Mathf.Abs(turnAngle) ? turnAngle * Time.fixedDeltaTime : finalTurnAngle;
 
             forwardDir = Quaternion.AngleAxis(finalTurnAngle, Vector3.up) * forwardDir;
             forwardDir = forwardDir.normalized;

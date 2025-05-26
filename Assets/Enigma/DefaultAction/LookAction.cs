@@ -83,14 +83,14 @@ namespace Enigma
         Vector2 angles;
         IEnumerator Turn(float turnX,float turnY, Transform orbitTarget)
         {
-            angles.x = Mathf.SmoothDamp(angles.x,turnX*turnSpeed,ref turnVelo.x,turnTime, 25, Time.fixedDeltaTime);
+            angles.x = Mathf.SmoothDamp(angles.x,turnX*turnSpeed,ref turnVelo.x,turnTime, 180, Time.fixedDeltaTime);
             Quaternion xRot = Quaternion.AngleAxis(angles.x,Vector3.up);
             transform.position = 
                 (xRot*(transform.position-orbitTarget.position)) + orbitTarget.position;
             transform.forward = 
                 xRot * transform.forward;
 
-            angles.y = Mathf.SmoothDamp(angles.y,turnY*turnSpeed,ref turnVelo.y,turnTime, 25, Time.fixedDeltaTime);
+            angles.y = Mathf.SmoothDamp(angles.y,turnY*turnSpeed,ref turnVelo.y,turnTime, 180, Time.fixedDeltaTime);
             Quaternion yRot = Quaternion.AngleAxis(angles.y,transform.right);
             transform.position = (yRot *(transform.position-orbitTarget.position))
                 + orbitTarget.position;
@@ -104,7 +104,7 @@ namespace Enigma
             RaycastHit hit;
             if(Physics.Raycast(castPos,-transform.forward,out hit,orbitDistance,collisionLayers))
             {
-                transform.position = hit.point;
+                transform.position = hit.point+transform.forward*0.125f;
             }
             yield return new WaitForFixedUpdate();
         }

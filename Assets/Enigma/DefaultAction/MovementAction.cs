@@ -66,7 +66,7 @@ namespace Enigma
 
             forwardDir = Quaternion.AngleAxis(finalTurnAngle, Vector3.up) * forwardDir;
             forwardDir = forwardDir.normalized;
-            float speed = Mathf.SmoothDamp(entity.body.velocity.magnitude,moveSpeed*moveDir.magnitude,ref refVelo, moveTime);
+            float speed = Mathf.SmoothDamp(entity.body.velocity.magnitude,moveSpeed*moveDir.magnitude,ref refVelo, moveTime,100,Time.fixedDeltaTime);
             Vector3 velocity = forwardDir*speed;
             entity.body.velocity = new Vector3(velocity.x, entity.body.velocity.y, velocity.z); //Vector3.SmoothDamp(entity.body.velocity,entity.body.velocity.normalized * moveSpeed,ref refVelo, moveTime);
             transform.forward = forwardDir;

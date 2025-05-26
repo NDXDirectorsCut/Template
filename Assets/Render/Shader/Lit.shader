@@ -163,19 +163,16 @@ Shader "Eclipse/Lit"
                 float3 reflection = GetSpecularReflection(surface,surface.viewDir);
 
                 //Lighting
+                float3 ambientLight = GetAmbientLight(surface);
                 float3 lighting = GetLighting(surface);
                 float3 specular = GetSpecular(surface);
                 float3 sheen = GetSheen(surface);
-                
-                //Ambient Cube Pass
-                float3 ambientLight = GetAmbientLight(surface);
-                
 
                 result = surface.diffuse;
                 result = metallicColor;
+                result *= lighting;
                 result += specular;
                 result += sheen;
-                result *= lighting;
                 result += reflection * _EnvironmentReflection;
                 result += surface.emission;
                 result += ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;

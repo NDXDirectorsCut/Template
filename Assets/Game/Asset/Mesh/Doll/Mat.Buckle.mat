@@ -100,9 +100,9 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
-    - _MetalnessInv: 0
+    - _MetalnessInv: 1
     - _Mode: 0
-    - _NormalStrength: 3
+    - _NormalStrength: 5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 1

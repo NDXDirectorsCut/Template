@@ -35,7 +35,7 @@ float3 GetAmbientSheen(SurfaceData surface)
 {
     float fresnel = Pow4(1-saturate(dot(surface.normal, surface.viewDir)));
     float3 ambientLight = GetAmbientLight(surface);
-    fresnel *= ambientLight;
+    fresnel *= clamp(ambientLight,0,1);
 
     return fresnel;
 }

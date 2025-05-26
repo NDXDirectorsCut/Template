@@ -102,11 +102,11 @@ Material:
     - _Metallic: 0
     - _MetalnessInv: 0
     - _Mode: 0
-    - _NormalStrength: 0.5
+    - _NormalStrength: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.8
-    - _SheenInv: 4
+    - _SheenInv: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 0.1

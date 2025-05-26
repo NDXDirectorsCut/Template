@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EclipseHighQuality
   m_EditorClassIdentifier: 
   renderSettings:
-    environmentLighting: 1
-    environmentReflection: 1
+    environmentLighting: 2
+    environmentReflection: 2
     shadowDistance: 75
     volumeShadowSamples: 64
     dirShadowAtlas: 8192

@@ -60,6 +60,7 @@ namespace Enigma
         float refVelo;
         IEnumerator Move(Vector3 moveDir, float moveSpeed, float moveTime)
         {
+            Debug.Log("Move");
             float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up) ;
             float finalTurnAngle = turnAngle * Time.fixedDeltaTime * turnSpeed;
             finalTurnAngle = Mathf.Abs(finalTurnAngle) > Mathf.Abs(turnAngle) ? turnAngle * Time.fixedDeltaTime : finalTurnAngle;
@@ -76,6 +77,7 @@ namespace Enigma
 
         IEnumerator MoveAir(Vector3 moveDir, float moveSpeed)
         {
+            Debug.Log("MoveAir");
             entity.body.velocity += moveDir * moveSpeed * Time.fixedDeltaTime;
 
             Vector3 planeVelo = Vector3.ProjectOnPlane(entity.body.velocity, Vector3.up);

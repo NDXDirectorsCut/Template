@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.049064606, g: 0.0477716, b: 0.043234855, a: 1}
+  m_IndirectSpecularColor: {r: 0.04906825, g: 0.047774542, b: 0.043237194, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -429,6 +429,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30975ff6213a06b4b857e60c98f93d66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  swingTarget: {fileID: 0}
+  swing:
+    name: Jump
+    inputType: 0
+  targetRange: 20
+  targetAngle: 70
+  swingSpeed: {x: 0, y: 0}
 --- !u!43 &1125959742
 Mesh:
   m_ObjectHideFlags: 0
@@ -686,6 +693,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 588782497}
+    - target: {fileID: 6264884595729213587, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_TagString
+      value: Swing
+      objectReference: {fileID: 0}
     - target: {fileID: 6744281574390793200, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -1308,10 +1319,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2021997437}
     m_Modifications:
+    - target: {fileID: 1102926239096823937, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 10c5edf8d78d58a47b80e8f6e9abae74, type: 2}
+    - target: {fileID: 1102926239096823937, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9f380375fcc99444fa1b8ee0314ae060, type: 2}
+    - target: {fileID: 1138941710203728429, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: m_NearClip
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1555462812610188792, guid: 22289452394a50343808454946ef891d, type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 8b473da795e522946b4c40a72ba84491, type: 2}
+    - target: {fileID: 1867125392642602448, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: field of view
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 1867125392642602448, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: near clip plane
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3672685824364227855, guid: 22289452394a50343808454946ef891d, type: 3}
       propertyPath: m_Name
       value: DollPrefab
@@ -1372,6 +1403,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 6881785d3d39f8b4b840da18ed14f796, type: 2}
+    - target: {fileID: 8727104835280689551, guid: 22289452394a50343808454946ef891d, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

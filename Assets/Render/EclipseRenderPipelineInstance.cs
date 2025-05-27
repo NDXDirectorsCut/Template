@@ -515,11 +515,13 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             // Schedule a command to draw the geometry, based on the settings you have defined
             context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
 
+            #if UNITY_EDITOR
             if (Handles.ShouldRenderGizmos())
             {
 			    context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
 			    context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
 		    }
+            #endif
 
             shdBuffer.ReleaseTemporaryRT(dirShadowAtlasId);
             if(ShdOthLightCount > 0)

@@ -13,16 +13,12 @@ namespace Enigma
         private string previousState;
         [System.NonSerialized]
         public bool actionLock = false;
-        //[SerializeField]
-        //private List<Action> actions = new List<Action>();
 
-        // Start is called before the first frame update
         void Start()
         {
             
         }
 
-        // Update is called once per frame
         void LateUpdate()
         {
             previousState = currentState;

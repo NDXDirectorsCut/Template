@@ -36,6 +36,7 @@ namespace Enigma
             float hor = horizontal.GetInput();
             float ver = vertical.GetInput();
             Vector3 inputDir = moveAxis.forward * ver + moveAxis.right * hor;
+            inputDir = Vector3.ProjectOnPlane(inputDir,Vector3.up);
             
             if(entity.grounded == true && entity.ChangeState("Idle"))
             {
@@ -48,7 +49,7 @@ namespace Enigma
                         StartCoroutine(Move(inputDir, walkSpeed,walkTime));
                 }
             }
-            else if(entity.grounded == false && entity.ChangeState("Idle"))
+            else if(entity.grounded == false && entity.ChangeState("Air"))
             {
                 if(inputDir != Vector3.zero)
                 {
@@ -60,7 +61,7 @@ namespace Enigma
         float refVelo;
         IEnumerator Move(Vector3 moveDir, float moveSpeed, float moveTime)
         {
-            Debug.Log("Move");
+            //Debug.Log("Move");
             float turnAngle = Vector3.SignedAngle(forwardDir,moveDir,Vector3.up) ;
             float finalTurnAngle = turnAngle * Time.fixedDeltaTime * turnSpeed;
             finalTurnAngle = Mathf.Abs(finalTurnAngle) > Mathf.Abs(turnAngle) ? turnAngle * Time.fixedDeltaTime : finalTurnAngle;
@@ -69,7 +70,7 @@ namespace Enigma
             forwardDir = forwardDir.normalized;
             float speed = Mathf.SmoothDamp(entity.body.velocity.magnitude,moveSpeed*moveDir.magnitude,ref refVelo, moveTime,100,Time.fixedDeltaTime);
             Vector3 velocity = forwardDir*speed;
-            entity.body.velocity = new Vector3(velocity.x, entity.body.velocity.y, velocity.z); //Vector3.SmoothDamp(entity.body.velocity,entity.body.velocity.normalized * moveSpeed,ref refVelo, moveTime);
+            entity.body.velocity = new Vector3(velocity.x, entity.body.velocity.y, velocity.z);
             transform.forward = forwardDir;
             yield return new WaitForFixedUpdate();
         }
@@ -77,8 +78,9 @@ namespace Enigma
 
         IEnumerator MoveAir(Vector3 moveDir, float moveSpeed)
         {
-            Debug.Log("MoveAir");
-            entity.body.velocity += moveDir * moveSpeed * Time.fixedDeltaTime;
+            //Debug.Log("MoveAir");
+            if(moveDir != Vector3.zero)
+                entity.body.velocity += moveDir * moveSpeed * Time.fixedDeltaTime;
 
             Vector3 planeVelo = Vector3.ProjectOnPlane(entity.body.velocity, Vector3.up);
             float turnAngle = Vector3.SignedAngle(forwardDir,planeVelo,Vector3.up);

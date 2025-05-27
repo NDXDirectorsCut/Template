@@ -19,7 +19,7 @@ namespace Enigma
         public InputType inputType;
         public float GetInput()
         {
-            if(inputType == InputType.Analog)
+            if(isAxis(name))
             {
                 return Input.GetAxisRaw(name);
             }
@@ -38,6 +38,20 @@ namespace Enigma
             }
             return 0;
         }
+
+        bool isAxis(string name)
+        {
+            try
+            {
+                Input.GetAxisRaw(name);
+                return true;
+            }
+            catch (UnityException exc)
+            {
+                return false;
+            }
+        }
+
     }
 
 }

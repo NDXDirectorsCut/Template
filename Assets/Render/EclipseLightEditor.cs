@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 [CanEditMultipleObjects]
 [CustomEditorForRenderPipeline(typeof(Light), typeof(EclipseRenderPipelineAsset))]
 public class EclipseLightEditor : LightEditor 
@@ -15,3 +16,4 @@ public class EclipseLightEditor : LightEditor
         }
 	}
 }
+#endif

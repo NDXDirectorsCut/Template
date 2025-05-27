@@ -9,6 +9,8 @@ public class SwingAction : Action
     [Header("Inputs")]
     public ActionInput swing;
     [Header("Variables")]
+    public Vector2 swingSpeed;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,8 +29,16 @@ public class SwingAction : Action
         }
     }
 
-    IEnumerator SwingCheck()
+    IEnumerator SwingCheck(float range)
     {
-        
+        Collider[] colliderList = Physics.OverlapSphere(entity.body.position, range);
+        Transform target = null;
+        foreach(var hitCollider in colliderList)
+        {
+            if(hitCollider.tag == "Swing")
+            {
+                
+            }
+        }
     }
 }

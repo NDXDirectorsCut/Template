@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.041407317, g: 0.03209743, b: 0.021116521, a: 1}
+  m_IndirectSpecularColor: {r: 0.26771984, g: 0.20752808, b: 0.13653146, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -908,7 +908,7 @@ MonoBehaviour:
   targetRange: 5
   targetAngle: 70
   swingSpeed: {x: 0, y: 0}
-  lerp: 0
+  lerp: 0.3
 --- !u!43 &828856618
 Mesh:
   m_ObjectHideFlags: 0
@@ -1741,6 +1741,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2880090184463987668, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2880090184463987668, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2880090184463987668, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 2948653218188337582, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1816,6 +1828,22 @@ PrefabInstance:
     - target: {fileID: 4070313474936866471, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -17.005981
+      objectReference: {fileID: 0}
+    - target: {fileID: 4492161854529894034, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4492161854529894034, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4492161854529894034, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4492161854529894034, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4602010986941086333, guid: e25f4ec02c4b7af47a37e34b324ec675, type: 3}
       propertyPath: m_Mesh

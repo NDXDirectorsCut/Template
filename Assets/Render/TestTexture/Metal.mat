@@ -52,6 +52,8 @@ Material:
     - _EmissionInv: 0
     - _MetalnessInv: 1
     - _NormalStrength: 5
+    - _RoughnessInv: 0.7
+    - _SheenInv: 0
     m_Colors:
     - _EmissionTint: {r: 1024, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

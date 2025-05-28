@@ -79,6 +79,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 2df52ad681c45fc46bc1875dac223e6b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SheenMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecularMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -87,10 +91,11 @@ Material:
     m_Floats:
     - _AlphaInv: 1
     - _BumpScale: 1
+    - _Clipping: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EmissionInv: 1
+    - _EmissionInv: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -101,6 +106,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 1
+    - _SheenInv: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 1
@@ -113,5 +119,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}
     - _ScaleOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _SheenTint: {r: 1, g: 1, b: 1, a: 1}
     - _SpecularTint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

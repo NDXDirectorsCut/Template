@@ -13,6 +13,7 @@ struct DirectionalShadowData
 {
 	float strength;
 	int tileIndex;
+	int cascade;
 };
 
 struct OtherShadowData
@@ -46,6 +47,7 @@ DirectionalShadowData GetDirShdData (int id, float3 positionWS)\
 	if(cascade == _CascadeCount)
 		data.strength = 0;
 	data.tileIndex = _DirectionalLightShadowData[id].y + GetCascade(positionWS);
+	data.cascade = cascade;
 	return data;
 }
 
@@ -58,6 +60,19 @@ OtherShadowData GetOthShdData(int id)
 	return data;
 }
 
+float ShadowMapBlur(Texture2D shadowAtlas,SamplerState sampler_Shadow, float3 coords, float blur)
+{
+	float shadow = 0.0f;
+	for(int blurCount=0; blurCount<64; blurCount++)
+	{
+		float2 offset = poissonDisk[blurCount] * blur/512;
+		float offsetShadow = shadowAtlas.Sample(sampler_Shadow, coords.xy + offset, 0) < coords.z;
+		shadow += offsetShadow;
+	}
+	shadow = shadow/64 + 0.15f;
+	return shadow;
+}
+
 float GetDirShadow(int id,float3 positionWS)
 {
 	DirectionalShadowData dirShadow = GetDirShdData(id,positionWS);
@@ -65,15 +80,16 @@ float GetDirShadow(int id,float3 positionWS)
 	{
 		return 1;
 	}
-	float3 test = float3(-1,0,0);
 	float4x4 mat = _DirectionalShadowMatrices[dirShadow.tileIndex];
 	//mat = Move4x4(mat,test);
 
 	float3 positionSTS = mul(
 		mat,
 		float4(positionWS, 1.0)).xyz;
+	
+	float4 sphere = _CascadeCullingSpheres[dirShadow.cascade];
 
-    float shadow = SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
+    float shadow = ShadowMapBlur(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS,0.5f);//SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);
 	return shadow;//-positionSTS.z;
 }
@@ -98,22 +114,15 @@ float3 GetOthShadow(int id,float3 positionWS, float3 lightDir)
 		tileIndex += faceOffset;
 	}
 
-		float3 lightPos = _OtherLightPositions[id];
-	//for(int smp=0; smp<_VolumeShadowSamples; smp++)
-	//{
-	//	float v1 = lightPos-positionWS;
-	//	float x2 = lightPos + (2,5,1);		
-	//}
-
 	float4 positionSTS = mul(
 		_OtherShadowMatrices[tileIndex],
 		float4(positionWS, 1.0));
 	float3 coord = positionSTS.xyz / positionSTS.w;
-	float shadow = SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+	float shadow = ShadowMapBlur(_OtherShadowAtlas, sampler_OtherShadowAtlas, positionSTS, othShadow.strength);//SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
 
 	//float finalShadow = 0;
 
-	shadow = lerp(1.0, shadow, othShadow.strength);
+	shadow = lerp(1.0, shadow, 1);
 	return shadow;
 }
 

@@ -6,8 +6,13 @@
 TEXTURE2D(_DirectionalShadowAtlas);
 SAMPLER(sampler_DirectionalShadowAtlas);
 
+SamplerState sampler_linear_clamp;
+
 TEXTURE2D(_OtherShadowAtlas);
 SAMPLER(sampler_OtherShadowAtlas);
+
+int _VolumeShadowSamples;
+float _VolumeShadowBlur;
 
 struct DirectionalShadowData 
 {
@@ -63,13 +68,16 @@ OtherShadowData GetOthShdData(int id)
 float ShadowMapBlur(Texture2D shadowAtlas,SamplerState sampler_Shadow, float3 coords, float blur)
 {
 	float shadow = 0.0f;
-	for(int blurCount=0; blurCount<64; blurCount++)
+
+	int numSamples = clamp(_VolumeShadowSamples,1,64);
+
+	for(int blurCount=0; blurCount<numSamples; blurCount++)
 	{
 		float2 offset = poissonDisk[blurCount] * blur/512;
 		float offsetShadow = shadowAtlas.Sample(sampler_Shadow, coords.xy + offset, 0) < coords.z;
 		shadow += offsetShadow;
 	}
-	shadow = shadow/64 + 0.15f;
+	shadow = shadow/numSamples;
 	return shadow;
 }
 
@@ -89,7 +97,7 @@ float GetDirShadow(int id,float3 positionWS)
 	
 	float4 sphere = _CascadeCullingSpheres[dirShadow.cascade];
 
-    float shadow = ShadowMapBlur(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS,0.5f);//SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
+    float shadow = ShadowMapBlur(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS,_VolumeShadowBlur);//SAMPLE_TEXTURE2D(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,positionSTS) < positionSTS.z;
 	shadow = lerp(1.0, shadow, dirShadow.strength);
 	return shadow;//-positionSTS.z;
 }
@@ -117,12 +125,13 @@ float3 GetOthShadow(int id,float3 positionWS, float3 lightDir)
 	float4 positionSTS = mul(
 		_OtherShadowMatrices[tileIndex],
 		float4(positionWS, 1.0));
+
 	float3 coord = positionSTS.xyz / positionSTS.w;
-	float shadow = ShadowMapBlur(_OtherShadowAtlas, sampler_OtherShadowAtlas, positionSTS, othShadow.strength);//SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+	float shadow = ShadowMapBlur(_OtherShadowAtlas, sampler_OtherShadowAtlas, coord, _VolumeShadowBlur+coord.z);//SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
 
 	//float finalShadow = 0;
 
-	shadow = lerp(1.0, shadow, 1);
+	shadow = lerp(1.0, shadow, othShadow.strength);
 	return shadow;
 }
 

@@ -57,7 +57,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         envLightId = Shader.PropertyToID("_EnvironmentLighting"),
         envReflId = Shader.PropertyToID("_EnvironmentReflection"),
         reflProbeId = Shader.PropertyToID("_ReflectionProbeArray"),
-        volShdSampleId = Shader.PropertyToID("_VolumeShadowSamples");
+        volShdSampleId = Shader.PropertyToID("_VolumeShadowSamples"),
+        volShdBlurId = Shader.PropertyToID("_VolumeShadowBlur");
 
     static Vector4[]
         dirLightColors = new Vector4[maxDirectionalLights],
@@ -117,6 +118,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         cmdBuffer.SetGlobalFloat(envLightId, rndSettings.environmentLighting);
         cmdBuffer.SetGlobalFloat(envReflId, rndSettings.environmentReflection);
         cmdBuffer.SetGlobalInt(volShdSampleId, rndSettings.volumeShadowSamples);
+        cmdBuffer.SetGlobalFloat(volShdBlurId, rndSettings.volumeShadowBlur);
     }
 
     void SetupDirLight(int id, int visId, ref VisibleLight light)
@@ -395,7 +397,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             context.ExecuteCommandBuffer(shdBuffer);
             shdBuffer.Clear();
 
-            shdBuffer.SetGlobalDepthBias(0.1f,1f);
+            shdBuffer.SetGlobalDepthBias(0.2f,1f);
             context.DrawShadows(ref shadowDrawSettings);
         }
 
@@ -495,7 +497,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             
             // Tell Unity how to sort the geometry, based on the current Camera
             var sortingSettings = new SortingSettings(camera) {
-			    criteria = SortingCriteria.RenderQueue
+			    criteria = SortingCriteria.CommonTransparent
 		    };
             // Create a DrawingSettings struct that describes which geometry to draw and how to draw it
             DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings)

@@ -23,6 +23,9 @@ Shader "Eclipse/Lit"
         _RoughnessInv("Inversion", Float) = 1
 
         //Extra PBR
+        [NoScaleOffset] _ClearcoatMap("Clearcoat", 2D) = "white" {}
+        _ClearcoatInv("Inversion", Float) = 0
+        _ClearcoatRgh("Roughness", Float) = 0.5
         [NoScaleOffset] _SheenMap("Sheen", 2D) = "white" {}
         _SheenInv("Inversion", Float) = 0
         _SheenTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
@@ -36,6 +39,7 @@ Shader "Eclipse/Lit"
     }
     SubShader
     {
+        Cull Off
         Pass
         {
             // The value of the LightMode Pass tag must match the ShaderTagId in ScriptableRenderContext.DrawRenderers
@@ -86,6 +90,9 @@ Shader "Eclipse/Lit"
             UNITY_DEFINE_INSTANCED_PROP(float4, _RoughnessMap_ST);
             SAMPLER(sampler_RoughnessMap);
             float _RoughnessInv;
+            TEXTURE2D(_ClearcoatMap);
+            float _ClearcoatInv;
+            float _ClearcoatRgh;
             TEXTURE2D(_SheenMap);
             float _SheenInv;
             float3 _SheenTint;
@@ -139,6 +146,7 @@ Shader "Eclipse/Lit"
                 float metalness = SAMPLE_TEXTURE2D(_MetalnessMap,sampler_AlbedoMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float roughness = SAMPLE_TEXTURE2D(_RoughnessMap,sampler_RoughnessMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
                 float sheenTex = SAMPLE_TEXTURE2D(_SheenMap, sampler_RoughnessMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
+                float clearcoatness = SAMPLE_TEXTURE2D(_ClearcoatMap,sampler_SpecularMap, IN.baseUV * _ScaleOffset.xy + _ScaleOffset.zw);
 
                 surface =
                 GetSurface(
@@ -168,10 +176,14 @@ Shader "Eclipse/Lit"
                 float3 specular = GetSpecular(surface);
                 float3 sheen = GetSheen(surface);
 
+                surface.roughness = clamp(_ClearcoatRgh,0,1);
+                float3 clearcoat = GetSpecular(surface) * Inversion(clearcoatness,_ClearcoatInv);
+
                 result = surface.diffuse;
                 result = metallicColor;
                 result *= lighting;
                 result += specular;
+                result += clearcoat;
                 result += sheen;
                 result += reflection * _EnvironmentReflection;
                 result += surface.emission;
@@ -179,7 +191,7 @@ Shader "Eclipse/Lit"
 
                 #ifdef _CLIPPING
                     clip(surface.alpha - _Cutoff);
-                    surface.alpha = surface.alpha > _Cutoff;
+                    //surface.alpha = surface.alpha > _Cutoff;
                 #endif
                 return float4(result,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
             }

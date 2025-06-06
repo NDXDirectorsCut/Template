@@ -134,6 +134,22 @@ static const float2 poissonDisk[64] = {
 	float2(-0.4230408, -0.7129914),
 };
 
+uint HashR(uint s)
+{
+    s ^= 2747636419u;
+    s *= 2654435769u;
+    s ^= s >> 16;
+    s *= 2654435769u;
+    s ^= s >> 16;
+    s *= 2654435769u;
+    return s;
+}
+
+float Random(uint seed)
+{
+    return float(HashR(seed)) / 4294967295.0 * 0.004; // 2^32-1
+}
+
 TextureCubeArray _ReflectionProbeArray;
 SAMPLER(sampler_ReflectionProbeArray);
 
@@ -158,6 +174,39 @@ float4x4 Move4x4(float4x4 m, float3 v)
     m[0][3] += x;
     m[1][3] += y;
     m[2][3] += z;
+    return m;
+}
+
+float4x4 axisAngle4x4(float4x4 m, float3 axis, float angle)
+{
+    angle = radians(angle);
+    float s = sin(angle);
+    float c = cos(angle);
+    float one_minus_c = 1.0 - c;
+
+    axis = normalize(axis);
+    float3x3 rotMatrix = 
+    {   one_minus_c * axis.x * axis.x + c, one_minus_c * axis.x * axis.y - axis.z * s, one_minus_c * axis.z * axis.x + axis.y * s,
+        one_minus_c * axis.x * axis.y + axis.z * s, one_minus_c * axis.y * axis.y + c, one_minus_c * axis.y * axis.z - axis.x * s,
+        one_minus_c * axis.z * axis.x - axis.y * s, one_minus_c * axis.y * axis.z + axis.x * s, one_minus_c * axis.z * axis.z + c
+    };
+
+    float4x4 finalRot = float4x4(
+        float rotMatrix[0][0], rotMatrix[0][1], rotMatrix[0][2], 0, 
+        float rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2], 0, 
+        float rotMatrix[2][0], rotMatrix[2][1], rotMatrix[2][2], 0, 
+        0              , 0        , 0        , 1
+    );
+
+    return mul(finalRot,  m);
+}
+
+float4x4 Scale4x4(float4x4 m, float3 v)
+{
+    float x = v.x, y = v.y, z = v.z;
+    m[0][0] *= x;
+    m[1][1] *= y;
+    m[2][2] *= z;
     return m;
 }
 

@@ -95,7 +95,7 @@ Material:
     m_Floats:
     - _AlphaInv: 1
     - _BumpScale: 1
-    - _ClearcoatInv: 1.07
+    - _ClearcoatInv: 0.1
     - _ClearcoatRgh: 0.14
     - _Clipping: 0
     - _Cutoff: 0.5
@@ -112,7 +112,8 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.7
-    - _SheenInv: 0.5
+    - _SheenInv: 0.3
+    - _SheenPow: 4
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularInv: 0.4

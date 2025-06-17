@@ -27,6 +27,7 @@ Shader "Eclipse/Lit"
         _ClearcoatInv("Inversion", Float) = 0
         _ClearcoatRgh("Roughness", Float) = 0.5
         [NoScaleOffset] _SheenMap("Sheen", 2D) = "white" {}
+        _SheenPow("Power", Float) = 4
         _SheenInv("Inversion", Float) = 0
         _SheenTint("Tint", Color) = (1.0, 1.0, 1.0, 1.0)
 
@@ -94,6 +95,7 @@ Shader "Eclipse/Lit"
             float _ClearcoatInv;
             float _ClearcoatRgh;
             TEXTURE2D(_SheenMap);
+            float _SheenPow;
             float _SheenInv;
             float3 _SheenTint;
 
@@ -168,16 +170,24 @@ Shader "Eclipse/Lit"
                 );
                 
                 float3 metallicColor = GetMetalness(surface);
-                float3 reflection = GetSpecularReflection(surface,surface.viewDir);
+                float3 reflection = GetEnvironmentReflection(surface,surface.viewDir);
+                reflection = reflection * _EnvironmentReflection;
 
                 //Lighting
                 float3 ambientLight = GetAmbientLight(surface);
+                ambientLight = ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;
                 float3 lighting = GetLighting(surface);
                 float3 specular = GetSpecular(surface);
-                float3 sheen = GetSheen(surface);
+                float3 sheen = GetSheen(surface,_SheenPow);
 
                 surface.roughness = clamp(_ClearcoatRgh,0,1);
-                float3 clearcoat = GetSpecular(surface) * Inversion(clearcoatness,_ClearcoatInv);
+                surface.specularity = clearcoatness;
+                float3 clearcoat = Inversion(GetSpecular(surface),_ClearcoatInv);
+
+                //float avgLum = 0.2126*ambientLight.r + 0.7152*ambientLight.g + 0.0722*ambientLight.b;
+                //reflection *= avgLum*10;
+                sheen *= normalize(ambientLight+0.01f);
+                //sheen *= (lighting+.5f)/2;
 
                 result = surface.diffuse;
                 result = metallicColor;
@@ -185,15 +195,15 @@ Shader "Eclipse/Lit"
                 result += specular;
                 result += clearcoat;
                 result += sheen;
-                result += reflection * _EnvironmentReflection;
                 result += surface.emission;
-                result += ambientLight * lerp(1,surface.diffuse,.9) * _EnvironmentLighting;
+                result += ambientLight;
+                result += reflection;
 
                 #ifdef _CLIPPING
                     clip(surface.alpha - _Cutoff);
                     //surface.alpha = surface.alpha > _Cutoff;
                 #endif
-                return float4(result,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
+                return float4(result*0.001 + lighting,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL

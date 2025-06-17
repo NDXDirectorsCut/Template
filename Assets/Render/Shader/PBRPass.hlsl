@@ -30,7 +30,7 @@ float3 GetDirSpecular(SurfaceData surface, int id)
     float3 lightDir = _DirectionalLightDirections[id];
     float3 color = _DirectionalLightColors[id];
 
-    float light = GetDirLight(id);
+    float light = GetDirLight(id,surface);
 
     return GetLightSpecular(surface,lightDir) * color * light;
 }
@@ -43,7 +43,7 @@ float3 GetPointSpecular(SurfaceData surface, int id)
     float3 dist = lightPos-surface.position;
     float3 lightDir = normalize(dist);
 
-    float light = GetOtherLight(id);
+    float light = GetOtherLight(id,surface);
     float distanceSqr = max(dot(dist, dist), 0.00001);
     
     // float shadowAttenuation = GetOthShadow(id,positionWS);
@@ -86,7 +86,7 @@ float3 GetMetalness(SurfaceData surface)
     return metallicColor;
 }
 
-float3 GetSpecularReflection(SurfaceData surface, float3 viewDir = (0,0,0))
+float3 GetEnvironmentReflection(SurfaceData surface, float3 viewDir = (0,0,0))
 {
     float roughness = RoughnessToPerceptualRoughness(surface.roughness);
     float lod = PerceptualRoughnessToMipmapLevel(clamp(roughness,0,1));

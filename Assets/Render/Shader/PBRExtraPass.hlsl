@@ -5,6 +5,8 @@
 #include "LightingPass.hlsl"
 #include "AmbientCubePass.hlsl"
 
+float sheenPow;
+
 float3 GetOtherSheen(int id, SurfaceData surface)
 {
     float3 lightPos = _OtherLightPositions[id];
@@ -13,9 +15,9 @@ float3 GetOtherSheen(int id, SurfaceData surface)
     float3 dist = lightPos-surface.position;
     float3 lightDir = normalize(dist);
 
-    float light = GetOtherLight(id);
+    float light = GetOtherLight(id,surface);
     
-    float fresnel = Pow4(1-saturate(dot(surface.normal, surface.viewDir)));// * saturate(dot(surface.normal,lightDir));
+    float fresnel = pow(1-saturate(dot(surface.normal, surface.viewDir)),sheenPow);// * saturate(dot(surface.normal,lightDir));
     fresnel *= light;
 
     return fresnel;
@@ -23,9 +25,9 @@ float3 GetOtherSheen(int id, SurfaceData surface)
 
 float3 GetDirSheen(int id, SurfaceData surface)
 {
-    float light = GetDirLight(id);
+    float light = GetDirLight(id,surface);
     
-    float fresnel = Pow4(1-saturate(dot(surface.normal, surface.viewDir)));
+    float fresnel = pow(1-saturate(dot(surface.normal, surface.viewDir)),sheenPow);
     fresnel *= light;
 
     return fresnel;
@@ -40,10 +42,12 @@ float3 GetAmbientSheen(SurfaceData surface)
     return fresnel;
 }
 
-float3 GetSheen(SurfaceData surface)
+float3 GetSheen(SurfaceData surface,float power)
 {
     float3 sheen = 0;
     
+    sheenPow = power;
+
     for(int she=0; she< _OtherLightCount; she++)
     {
         sheen += GetOtherSheen(she, surface);

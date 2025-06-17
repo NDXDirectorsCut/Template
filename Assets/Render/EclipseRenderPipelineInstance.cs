@@ -240,17 +240,23 @@ public class EclipseRenderPipelineInstance : RenderPipeline
     static int 
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
 		dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
+        dirShadowInvMatricesId = Shader.PropertyToID("_DirectionalShadowInverseMatrices"),
         cascadeCountId = Shader.PropertyToID("_CascadeCount"),
         cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
+        cascadeDataId = Shader.PropertyToID("_CascadeData"),
 
         othShadowAtlasId = Shader.PropertyToID("_OtherShadowAtlas"),
         othShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices");
 
-    static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+    static Vector4[] 
+        cascadeCullingSpheres = new Vector4[maxCascades],
+        cascadeData = new Vector4[maxCascades];
+    
     Vector4 shdAtlasSize; //XY Directional //ZW Other
 
     static Matrix4x4[]
 		dirShadowMatrices = new Matrix4x4[maxDirectionalShadows * maxCascades],
+        dirShadowInvMatrices = new Matrix4x4[maxDirectionalShadows * maxCascades],
         othShadowMatrices = new Matrix4x4[maxOtherShadows];
 
     Matrix4x4 ConvertToAtlasMatrix (Matrix4x4 m, Vector2 offset, int split) {
@@ -309,9 +315,18 @@ public class EclipseRenderPipelineInstance : RenderPipeline
                 RenderDirShadow(i, split, tileSize, context);
             }
 
+            int arrayCount = ShdDirLightCount*rndSettings.cascadeCount;
+
+            for(int i=0; i<arrayCount; i++)
+            {
+                dirShadowInvMatrices[i] = dirShadowMatrices[i].inverse;
+            }
+
             shdBuffer.SetGlobalInt(cascadeCountId, rndSettings.cascadeCount);
             shdBuffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
+            shdBuffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
             shdBuffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+            shdBuffer.SetGlobalMatrixArray(dirShadowInvMatricesId, dirShadowInvMatrices);
             context.ExecuteCommandBuffer(shdBuffer);
             shdBuffer.Clear();
         }
@@ -379,13 +394,18 @@ public class EclipseRenderPipelineInstance : RenderPipeline
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData
             );
-            splitData.shadowCascadeBlendCullingFactor = 1f;
+            splitData.shadowCascadeBlendCullingFactor = 0f;
             shadowDrawSettings.splitData = splitData;
             if(id == 0)
             {
                 Vector4 cullingSphere = splitData.cullingSphere;
+
+                cascadeData[i].x = 1f/cullingSphere.w;
+                float texelSize = 2f*cullingSphere.w / tileSize;
+                cascadeData[i].y = texelSize;
+
                 cullingSphere.w *= cullingSphere.w;
-                cascadeCullingSpheres[i] = cullingSphere;
+                cascadeCullingSpheres[i] = cullingSphere; 
             }
             int tileIndex = tileOffset + i;
             dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(

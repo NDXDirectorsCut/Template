@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat.WoodFace
+  m_Name: DefaultMaterial 2
   m_Shader: {fileID: 4800000, guid: 777067df1cad77f4fb5041e98664114d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AlbedoMap:
-        m_Texture: {fileID: 2800000, guid: 914d384063255b844a2ae1fcc93e2134, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AlphaMap:
@@ -68,7 +68,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 941ff8b2fc5c82141abf0dd94574b211, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -80,11 +80,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoughnessMap:
-        m_Texture: {fileID: 2800000, guid: 2e1c9002324ca9241ac52eacf61bab4c, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SheenMap:
-        m_Texture: {fileID: 2800000, guid: 319b840559c7f4144830b4ef9f4a0163, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularMap:
@@ -95,8 +95,8 @@ Material:
     m_Floats:
     - _AlphaInv: 1
     - _BumpScale: 1
-    - _ClearcoatInv: 0.1
-    - _ClearcoatRgh: 0.14
+    - _ClearcoatInv: 0
+    - _ClearcoatRgh: 0.5
     - _Clipping: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -108,20 +108,20 @@ Material:
     - _Metallic: 0
     - _MetalnessInv: 0
     - _Mode: 0
-    - _NormalStrength: 0.5
+    - _NormalStrength: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RoughnessInv: 0.7
-    - _SheenInv: 0.3
-    - _SheenPow: 4
+    - _RoughnessInv: 1
+    - _SheenInv: 0
+    - _SheenPow: 5.58
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularInv: 0.4
+    - _SpecularInv: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoTint: {r: 1, g: 1, b: 1, a: 1}
+    - _AlbedoTint: {r: 0, g: 1, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}

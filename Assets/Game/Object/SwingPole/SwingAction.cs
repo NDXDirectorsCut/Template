@@ -60,11 +60,11 @@ public class SwingAction : Action
         float fwdSpeed = 0;
         float rgtSpeed = 0;
         float fwdRef = 0;
-        float rgtRef = 0;
+        float rgtRef = 0; 
 
         //Vector3 relVelocity = pole.InverseTransformDirection(Vector3.ProjectOnPlane(entity.body.velocity,upVector));
         fwdSpeed = 6 * Vector3.Dot(entity.body.velocity,fwdVector);//relVelocity.z;
-        //rgtSpeed = 2 * Vector3.Dot(entity.body.velocity,pole.right);
+        rgtSpeed = 2 * Vector3.Dot(entity.body.velocity,pole.right);
 
         while(swingTarget != null && swing.GetInput() != 0)
         {
@@ -102,12 +102,12 @@ public class SwingAction : Action
 
             float animSpeed = backwards ? fwdSpeed : -fwdSpeed;
             animator.SetFloat("SwingVelo",animSpeed);
-            wires.targetPos = swingPoint;
+            //wires.targetPos = swingPoint;
             yield return new WaitForFixedUpdate();
         }
 
         swingTarget = null;
-        wires.targetPos = Vector3.zero;
+        //wires.targetPos = Vector3.zero;
         transform.rotation = backwards ? Quaternion.LookRotation(Vector3.ProjectOnPlane(fwdVector,Vector3.up),Vector3.up) : Quaternion.LookRotation(Vector3.ProjectOnPlane(-fwdVector,Vector3.up),Vector3.up);
         //entity.ChangeState("Idle");
         entity.actionLock = false;

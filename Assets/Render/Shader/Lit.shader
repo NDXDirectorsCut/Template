@@ -203,11 +203,13 @@ Shader "Eclipse/Lit"
                     clip(surface.alpha - _Cutoff);
                     //surface.alpha = surface.alpha > _Cutoff;
                 #endif
-                return float4(result*0.001 + lighting,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
+                return float4(result*0.0001+lighting,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL
         }
+
+        Cull Off
         Pass {
 			Tags { "LightMode" = "ShadowCaster"}
 

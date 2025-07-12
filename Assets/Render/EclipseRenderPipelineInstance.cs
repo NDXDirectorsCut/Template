@@ -462,10 +462,13 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             {
                 //Debug.Log(i);
                 cullingResults.ComputePointShadowMatricesAndCullingPrimitives(
-                    light.visibleLightIndex, (CubemapFace)i, 0f,
+                    light.visibleLightIndex, (CubemapFace)i, 12,
                     out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                     out ShadowSplitData splitData
                 );
+                viewMatrix.m11 = -viewMatrix.m11;
+                viewMatrix.m12 = -viewMatrix.m12;
+                viewMatrix.m13 = -viewMatrix.m13;
                 shadowDrawSettings.splitData = splitData;
                 int tileId = id + i;
 

@@ -5,8 +5,7 @@
 
 TEXTURE2D(_DirectionalShadowAtlas);
 SAMPLER(sampler_DirectionalShadowAtlas);
-
-SamplerState sampler_linear_clamp;
+SAMPLER_CMP(sampler_linear_clamp);
 
 TEXTURE2D(_OtherShadowAtlas);
 SAMPLER(sampler_OtherShadowAtlas);
@@ -65,40 +64,71 @@ OtherShadowData GetOthShdData(int id)
 	return data;
 }
 
-float ShadowMapBlur(Texture2D shadowAtlas,SamplerState sampler_Shadow,float3 coords, float blur)
+float ShadowMapBlur(Texture2D shadowAtlas,SamplerState state,float4x4 mat,float blur, float3 pos)
 {
 	float shadow = 0.0f;
 	int numSamples = clamp(_VolumeShadowSamples,0,64);
 
-	shadow += shadowAtlas.Sample(sampler_Shadow, coords.xy, 0) <= coords.z;
+	float4 positionSTS = mul(mat,float4(pos, 1.0));
+	float3 coords = positionSTS.xyz/positionSTS.w;
+	//shadow += shadowAtlas.Sample(state, coords.xy, 0) <= coords.z;
 
-	for(int blurCount=0; blurCount<numSamples; blurCount++)
+	for(int blurCount=0; blurCount<numSamples; ++blurCount)
 	{
 		float2 offset = poissonDisk[blurCount] * blur;
+		float3 offsetPos = pos+float3(offset,0);
 
-		float offsetShadow = shadowAtlas.Sample(sampler_Shadow, coords.xy + offset, 0) <= coords.z+blur;
+		positionSTS = mul(mat,float4(pos, 1.0));
+		coords = positionSTS.xyz/positionSTS.w;
+
+		float offsetShadow = shadowAtlas.Sample(state, coords, 0) < coords.z+blur;
 		shadow += offsetShadow;
 	}
 	shadow = shadow/(numSamples+1);
 	return shadow;
 }
 
-float ShadowMapReproject(
-	float radius, Texture2D shadowAtlas,SamplerState sampler_Shadow, float3 coords
-){
-	float shadow = 0.0f;
+float DilateShadow(Texture2D t2D,SamplerState state,float4x4 mat, float size, float3 pos,bool mode = 0)
+{
+	float dilated = 0.0f;
 	int numSamples = clamp(_VolumeShadowSamples,0,64);
-	shadow += shadowAtlas.Sample(sampler_Shadow, coords.xy, 0) <= coords.z;
 
-	for(int count=0; count<numSamples; count++)
+	float4 positionSTS = mul(mat,float4(pos, 1.0));
+	float3 coords = positionSTS.xyz/positionSTS.w;
+
+	float ref = t2D.Sample(state, coords, 0)-coords.z;
+	dilated = clamp(ref,0,1000);
+
+	for(int dilate=0; dilate<numSamples; dilate++)
 	{
-		float2 offset = poissonDisk[count] * radius;
+	 	float2 offset = poissonDisk[numSamples-dilate] * size;
+		float3 offsetPos = pos+float3(offset,0);
 
-		float offsetShadow = shadowAtlas.Sample(sampler_Shadow, coords, 0) <= coords.z ;
-		shadow += offsetShadow;
+	 	positionSTS = mul(mat,float4(offsetPos, 1.0));
+		coords = positionSTS.xyz/positionSTS.w;
+
+	 	float shadow = t2D.Sample(state, coords, 0)-coords.z;
+		if(coords.x>1 || coords.x<0 || coords.y>1 || coords.y<0)
+			shadow = 0;
+		
+	 	shadow = clamp(shadow,0,1000);
+		if(mode == 0)
+		{
+			if(shadow>dilated)
+			{
+				dilated = shadow;
+			}
+		}
+		else
+		{
+			dilated += shadow;
+		}
 	}
-	shadow = shadow/(numSamples+1);
-	return shadow;
+	if(mode ==0)
+	{
+		return dilated;
+	}
+	return dilated/(numSamples+1);
 }
 
 float3 GetDirShadow(int id, SurfaceData surface)
@@ -109,6 +139,7 @@ float3 GetDirShadow(int id, SurfaceData surface)
 		return 1;
 	}
 	float texelSize = _CascadeData[dirShadow.cascadeId].x;
+	float4 sphere = _CascadeCullingSpheres[dirShadow.cascadeId];
 
 	float4x4 mat = _DirectionalShadowMatrices[dirShadow.tileIndex];
 	float4x4 invMat = _DirectionalShadowInverseMatrices[dirShadow.tileIndex];
@@ -117,19 +148,23 @@ float3 GetDirShadow(int id, SurfaceData surface)
 	float3 axis = float3(0,1,0);
 	float3x3 rotMatrix = AxisAngle3x3(axis,180*_VolumeShadowBlur);
 
-	float3 pos = mul(rotMatrix,surface.position);
+	float3 pos = surface.position + normalBias;
 
 	float4 positionSTS = mul(
 		mat,
 		float4(pos, 1.0));
 
-    float shadow = _DirectionalShadowAtlas.Sample(sampler_DirectionalShadowAtlas, positionSTS, 0);
-	float4 shdSTS = float4(positionSTS.xy,shadow,positionSTS.w);
-	float3 shadowPos = mul(invMat,shdSTS);
-	float3 reconstructedPos = mul(invMat,positionSTS);
-
+	//float shadow = PCSS(_DirectionalShadowAtlas,positionSTS, texelSize);
+	float strength = 0.1f;
+	float dilation = DilateShadow(_DirectionalShadowAtlas, sampler_DirectionalShadowAtlas, mat,_VolumeShadowBlur,pos,false);//
+	float test = rsqrt(sphere.w);
+	dilation = dilation*(dirShadow.cascadeId*2+1);
+	float blurParameter = _VolumeShadowBlur*0.25f*dilation*strength;
+    float shadow = ShadowMapBlur(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,mat,_VolumeShadowBlur,pos);
+	//shadow = shadow*(1+_VolumeShadowBlur*0.5f);
+	shadow = clamp(shadow,0,1);
 	shadow = lerp(1.0, shadow, dirShadow.strength);
-	return shadowPos;
+	return shadow;
 }
 
 float3 GetOthShadow(int id, SurfaceData surface, float3 lightDir)
@@ -152,17 +187,24 @@ float3 GetOthShadow(int id, SurfaceData surface, float3 lightDir)
 		tileIndex += faceOffset;
 	}
 
+	float4x4 mat = _OtherShadowMatrices[tileIndex];
+
+	float3 pos = surface.position+surface.normal*0.01;
+
 	float4 positionSTS = mul(
-		_OtherShadowMatrices[tileIndex],
-		float4(surface.position, 1.0));
+		mat,
+		float4(pos, 1.0));
 
 	float3 coord = positionSTS.xyz / positionSTS.w;
-	float shadow = _OtherShadowAtlas.Sample(sampler_OtherShadowAtlas,coord,0);//ShadowMapBlur(_OtherShadowAtlas, sampler_OtherShadowAtlas, coord, _VolumeShadowBlur*0.01f);//SAMPLE_TEXTURE2D(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord)< coord.z;
+
+	float dilation = DilateShadow(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat,_VolumeShadowBlur*0.5f,pos,false);
+	float shadow = ShadowMapBlur(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat, _VolumeShadowBlur*0.25f*dilation,pos);
+	//shadow = GaussianBlur(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord);
 
 	//float finalShadow = 0;
 
 	shadow = lerp(1.0, shadow, othShadow.strength);
-	shadow = smoothstep(0,1,shadow);
+	//shadow = smoothstep(0,1,shadow);
 	return shadow;
 }
 

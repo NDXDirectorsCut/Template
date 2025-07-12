@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: EclipseHighQuality
   m_EditorClassIdentifier: 
   renderSettings:
-    environmentLighting: 2
-    environmentReflection: 2
-    shadowDistance: 17.8
-    volumeShadowSamples: 0
-    volumeShadowBlur: 0
+    environmentLighting: 1
+    environmentReflection: 1
+    shadowDistance: 100
+    volumeShadowSamples: 64
+    volumeShadowBlur: 0.3
     dirShadowAtlas: 8192
-    cascadeCount: 1
+    cascadeCount: 4
     cascadeRatio1: 0.02
     cascadeRatio2: 0.1
-    cascadeRatio3: 0.25
+    cascadeRatio3: 0.211
     othShadowAtlas: 8192
     postProcessingSettings: {fileID: 0}

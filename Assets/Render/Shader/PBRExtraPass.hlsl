@@ -18,19 +18,19 @@ float3 GetOtherSheen(int id, SurfaceData surface)
     float light = GetOtherLight(id,surface);
     
     float fresnel = pow(1-saturate(dot(surface.normal, surface.viewDir)),sheenPow);// * saturate(dot(surface.normal,lightDir));
-    fresnel *= light;
-
-    return fresnel;
+    fresnel = clamp(fresnel,0,1);
+    float3 final = fresnel*light*color;
+    return final;
 } 
 
 float3 GetDirSheen(int id, SurfaceData surface)
 {
-    float light = GetDirLight(id,surface);
-    
-    float fresnel = pow(1-saturate(dot(surface.normal, surface.viewDir)),sheenPow);
-    fresnel *= light;
+    float3 light = GetDirLight(id,surface);
+    float3 color = _DirectionalLightColors[id];
+    float3 fresnel = pow(1-saturate(dot(surface.normal, surface.viewDir)),sheenPow);
+    float3 final = fresnel*light*color;
 
-    return fresnel;
+    return final;
 }
 
 float3 GetAmbientSheen(SurfaceData surface)
@@ -57,7 +57,7 @@ float3 GetSheen(SurfaceData surface,float power)
         sheen += GetDirSheen(she2, surface);
     }
 
-    sheen += GetAmbientSheen(surface);
+    //sheen += GetAmbientSheen(surface);
 
     sheen *= surface.sheen;
     return sheen;

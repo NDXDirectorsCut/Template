@@ -47,7 +47,7 @@ float3 GetOtherLight(int id,SurfaceData surface)
     pointLighting /= distanceSqr;
     
     pointLighting = pointLighting * color;
-    return shadowAttenuation;
+    return pointLighting;
 }
 
 float3 GetLighting(SurfaceData surface)

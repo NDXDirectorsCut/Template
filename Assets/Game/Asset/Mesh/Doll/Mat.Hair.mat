@@ -99,7 +99,7 @@ Material:
     - _ClearcoatInv: 0.05
     - _ClearcoatRgh: 0.5
     - _Clipping: 1
-    - _Cutoff: 0.5
+    - _Cutoff: 0.259
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _EmissionInv: 0

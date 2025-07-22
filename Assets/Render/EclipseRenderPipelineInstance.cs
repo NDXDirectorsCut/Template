@@ -520,7 +520,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
             
             // Tell Unity how to sort the geometry, based on the current Camera
             var sortingSettings = new SortingSettings(camera) {
-			    criteria = SortingCriteria.CommonTransparent
+			    criteria = SortingCriteria.BackToFront
 		    };
             // Create a DrawingSettings struct that describes which geometry to draw and how to draw it
             DrawingSettings drawingSettings = new DrawingSettings(shaderTagId, sortingSettings)

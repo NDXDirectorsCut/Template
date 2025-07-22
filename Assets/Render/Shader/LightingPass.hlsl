@@ -17,7 +17,7 @@ float3 GetDirLight(int id, SurfaceData surface)
     dirLighting *= shadowAttenuation;
     //dirLighting = smoothstep(0,1,dirLighting);
     dirLighting *= color;
-    return shadowAttenuation;
+    return dirLighting;
 }
 
 float3 GetOtherLight(int id,SurfaceData surface)

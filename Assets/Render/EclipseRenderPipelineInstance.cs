@@ -58,7 +58,8 @@ public class EclipseRenderPipelineInstance : RenderPipeline
         envReflId = Shader.PropertyToID("_EnvironmentReflection"),
         reflProbeId = Shader.PropertyToID("_ReflectionProbeArray"),
         volShdSampleId = Shader.PropertyToID("_VolumeShadowSamples"),
-        volShdBlurId = Shader.PropertyToID("_VolumeShadowBlur");
+        volShdBlurId = Shader.PropertyToID("_VolumeShadowBlur"),
+        softShdModeId = Shader.PropertyToID("_SoftShadowMode");
 
     static Vector4[]
         dirLightColors = new Vector4[maxDirectionalLights],
@@ -117,8 +118,9 @@ public class EclipseRenderPipelineInstance : RenderPipeline
 
         cmdBuffer.SetGlobalFloat(envLightId, rndSettings.environmentLighting);
         cmdBuffer.SetGlobalFloat(envReflId, rndSettings.environmentReflection);
-        cmdBuffer.SetGlobalInt(volShdSampleId, rndSettings.volumeShadowSamples);
-        cmdBuffer.SetGlobalFloat(volShdBlurId, rndSettings.volumeShadowBlur);
+        cmdBuffer.SetGlobalInt(volShdSampleId, rndSettings.softShadowSamples);
+        cmdBuffer.SetGlobalFloat(volShdBlurId, rndSettings.shadowBlur);
+        cmdBuffer.SetGlobalInt(softShdModeId, (int)rndSettings.softShadowMode);
     }
 
     void SetupDirLight(int id, int visId, ref VisibleLight light)

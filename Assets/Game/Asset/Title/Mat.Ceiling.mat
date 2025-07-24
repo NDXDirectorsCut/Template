@@ -98,6 +98,7 @@ Material:
     - _ClearcoatInv: 0.05
     - _ClearcoatRgh: 0.03
     - _Clipping: 0
+    - _CullMode: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -112,6 +113,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.2
+    - _ShadowCullMode: 1
     - _SheenInv: 0
     - _SheenPow: 4
     - _SmoothnessTextureChannel: 0

@@ -212,12 +212,24 @@ float3 GetDirShadow(int id, SurfaceData surface)
 		float4(pos, 1.0));
 
 	//float shadow = PCSS(_DirectionalShadowAtlas,positionSTS, texelSize);
-	float strength = 0.1f;
-	float dilation = DilateShadow(_DirectionalShadowAtlas, sampler_DirectionalShadowAtlas, mat,_VolumeShadowBlur*texelSize,pos,true);//
-	dilation = dilation*1/texelSize;
+	float shadow = 0.0f;
+	if(_SoftShadowMode == 0)
+	{
+		shadow = _DirectionalShadowAtlas.Sample(sampler_DirectionalShadowAtlas,positionSTS)<positionSTS.z;
+	}
+	if(_SoftShadowMode == 1)
+	{
+		shadow = ShadowMapGauss(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,mat,_VolumeShadowBlur*texelSize,pos);
+	}
+	if(_SoftShadowMode == 2)
+	{
+		float dilation = DilateShadow(_DirectionalShadowAtlas, sampler_DirectionalShadowAtlas, mat,_VolumeShadowBlur*texelSize,pos,true);//
+		dilation = dilation*1/texelSize;
 
-	float blurParameter = _VolumeShadowBlur*0.1f*dilation;
-    float shadow = ShadowMapGauss(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,mat,blurParameter*texelSize,pos);
+		float blurParameter = _VolumeShadowBlur*0.1f*dilation;
+		shadow = ShadowMapGauss(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,mat,blurParameter*texelSize,pos);
+	}
+
 	//shadow += ShadowMapGauss(_DirectionalShadowAtlas,sampler_DirectionalShadowAtlas,mat,_VolumeShadowBlur,pos,float3(0,0,1));
 	//shadow = shadow*(1+_VolumeShadowBlur*0.5f);
 	shadow = clamp(shadow,0,1);
@@ -254,16 +266,24 @@ float3 GetOthShadow(int id, SurfaceData surface, float3 lightDir)
 		float4(pos, 1.0));
 
 	float3 coord = positionSTS.xyz / positionSTS.w;
-
 	float texelSize = 1.0/8;
 
-	float dilation = DilateShadow(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat,_VolumeShadowBlur * texelSize,pos,true);
+	float shadow = 0.0f;
+	if(_SoftShadowMode == 0)
+	{
+	 	shadow = _OtherShadowAtlas.Sample(sampler_OtherShadowAtlas,coord)<coord.z;
+	}
+	if(_SoftShadowMode == 1)
+	{
+		shadow = ShadowMapGauss(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat,_VolumeShadowBlur*texelSize*0.1f,pos);
+	}
+	if(_SoftShadowMode == 2)
+	{
+		float dilation = DilateShadow(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat,_VolumeShadowBlur * texelSize,pos,true);
 
-	float blurParameter = _VolumeShadowBlur*dilation;
-	float shadow = ShadowMapBlur(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat, blurParameter*4,pos);
-	//shadow = GaussianBlur(_OtherShadowAtlas,sampler_OtherShadowAtlas,coord);
-
-	//float finalShadow = 0;
+		float blurParameter = _VolumeShadowBlur*dilation;
+		shadow = ShadowMapGauss(_OtherShadowAtlas,sampler_OtherShadowAtlas,mat, blurParameter*4,pos);
+	}
 
 	shadow = lerp(1.0, shadow, othShadow.strength);
 	//shadow = smoothstep(0,1,shadow);

@@ -36,11 +36,13 @@ Shader "Eclipse/Lit"
         [Enum(Off, 0, On, 1)] _ZWrite ("Z Write", Float) = 1
         _Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 		[Toggle(_CLIPPING)] _Clipping ("Alpha Clipping", Float) = 0 
+        [Enum(UnityEngine.Rendering.CullMode)] _CullMode("Cull Mode", Int) = 2
+        [Enum(UnityEngine.Rendering.CullMode)] _ShadowCullMode("Shadow Cull Mode", Int) = 1
 
     }
     SubShader
     {
-        Cull Off
+        Cull [_CullMode]
         Pass
         {
             // The value of the LightMode Pass tag must match the ShaderTagId in ScriptableRenderContext.DrawRenderers
@@ -170,7 +172,7 @@ Shader "Eclipse/Lit"
                 );
                 
                 float3 metallicColor = GetMetalness(surface);
-                float3 reflection = GetEnvironmentReflection(surface,surface.viewDir);
+                float3 reflection = GetEnvironmentReflection(surface,surface.roughness,surface.viewDir);
                 reflection = reflection * _EnvironmentReflection;
 
                 //Lighting
@@ -183,6 +185,8 @@ Shader "Eclipse/Lit"
                 surface.roughness = clamp(_ClearcoatRgh,0,1);
                 surface.specularity = clearcoatness;
                 float3 clearcoat = Inversion(GetSpecular(surface),_ClearcoatInv);
+                float3 clearcoatReflection = GetEnvironmentReflection(surface,surface.roughness,surface.viewDir);
+                clearcoatReflection = clearcoatReflection * _EnvironmentReflection;
 
                 //float avgLum = 0.2126*ambientLight.r + 0.7152*ambientLight.g + 0.0722*ambientLight.b;
                 //reflection *= avgLum*10;
@@ -197,19 +201,21 @@ Shader "Eclipse/Lit"
                 result += sheen;
                 result += surface.emission;
                 result += ambientLight;
-                result += reflection;
+                result += lerp(reflection,(reflection+clearcoatReflection)/2.0f,clamp(_ClearcoatInv,0,1));
 
                 #ifdef _CLIPPING
                     clip(surface.alpha - _Cutoff);
                     surface.alpha = surface.alpha > _Cutoff;
                 #endif
+                clip(surface.alpha - _Cutoff);
+
                 return float4(result,surface.alpha);//result;//abs(length(normal) - 1.0) * 10.0;;
             }
             
             ENDHLSL
         }
 
-        Cull Off
+        Cull [_ShadowCullMode]
         Pass {
 			Tags { "LightMode" = "ShadowCaster"}
 

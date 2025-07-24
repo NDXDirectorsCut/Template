@@ -86,10 +86,10 @@ float3 GetMetalness(SurfaceData surface)
     return metallicColor;
 }
 
-float3 GetEnvironmentReflection(SurfaceData surface, float3 viewDir = (0,0,0))
+float3 GetEnvironmentReflection(SurfaceData surface,float roughness, float3 viewDir = (0,0,0))
 {
-    float roughness = RoughnessToPerceptualRoughness(surface.roughness);
-    float lod = PerceptualRoughnessToMipmapLevel(clamp(roughness,0,1));
+    float roughLOD = RoughnessToPerceptualRoughness(roughness);
+    float lod = PerceptualRoughnessToMipmapLevel(clamp(roughLOD,0,1));
 
     if(length(viewDir) == 0)
         viewDir = surface.viewDir;
@@ -98,12 +98,12 @@ float3 GetEnvironmentReflection(SurfaceData surface, float3 viewDir = (0,0,0))
     float3 brdfSpecular = lerp(0.04, surface.diffuse, surface.metalness);
 
     float fresnel = Pow4(1.0 - saturate(dot(surface.normal, surface.viewDir)));
-    float fresnelStrength = saturate((1.0 -surface.roughness) + 1.0 - clamp(1 - surface.metalness,0.04,1));
+    float fresnelStrength = saturate((1.0 -roughness) + 1.0 - clamp(1 - surface.metalness,0.04,1));
 
     //brdfSpecular = lerp(brdfSpecular, fresnelStrength,fresnel);
 
     reflection *= brdfSpecular * surface.specularity;
-    reflection /= surface.roughness * surface.roughness + 1;
+    reflection /= roughness * roughness + 1;
     return reflection;
 }
 

@@ -112,7 +112,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.35
-    - _SheenInv: 0.05
+    - _SheenInv: 1
     - _SheenPow: 4
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

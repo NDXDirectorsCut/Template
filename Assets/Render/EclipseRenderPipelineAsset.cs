@@ -7,6 +7,10 @@ public enum MapSize
 		_2048 = 2048, _4096 = 4096, _8192 = 8192    
 }
 
+public enum SoftShadowMode
+{
+    _Hard = 0, _Gaussian = 1, _DistanceGaussian = 2
+}
 // [System.Serializable]
 // public struct DirectionalSettings
 // {
@@ -40,9 +44,10 @@ public class RndSettings
     [Range(0,10)] public float environmentReflection;
     [Header("Shadows")]
     public float shadowDistance = 100f;
-    [Range(0,256)]
-    public int volumeShadowSamples = 64; 
-    [Range(0,2)] public float volumeShadowBlur = 1f;
+    public SoftShadowMode softShadowMode;
+    [Range(0,16)]
+    public int softShadowSamples = 4; 
+    [Range(0,2)] public float shadowBlur = 1f;
     [Header("Directional")]
     public MapSize dirShadowAtlas = MapSize._1024;
     [Range(1,4)] public int cascadeCount = 4;

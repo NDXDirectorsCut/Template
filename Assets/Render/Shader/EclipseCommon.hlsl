@@ -61,6 +61,8 @@ float4 _OtherLightSpotAngles[MAX_OTHER_LIGHTS];
 float4 _OtherLightShadowData[MAX_OTHER_LIGHTS];
 float4x4 _OtherShadowMatrices[MAX_OTHER_SHADOWS];
 
+int _SoftShadowMode;
+
 static const float3 pointShadowPlanes[6] = {
 	float3(-1.0, 0.0, 0.0),
 	float3(1.0, 0.0, 0.0),

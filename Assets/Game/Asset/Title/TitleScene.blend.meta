@@ -3,7 +3,42 @@ guid: e7a65d4f7b454a349967db957d8ec47c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Ceiling
+    second: {fileID: 2100000, guid: 548c445c61c3aad46aedb3fcaed29fa3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Closet
+    second: {fileID: 2100000, guid: 30c6d38106ddf564bab3fde4d331ce05, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Curtain
+    second: {fileID: 2100000, guid: 9da3757c39bb0d745a678de142c72a12, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Floor
+    second: {fileID: 2100000, guid: 505f29f55b796514a97d34c880851cda, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Wall
+    second: {fileID: 2100000, guid: 20f4582426eb378499dc253933d9b04e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.WallBevel
+    second: {fileID: 2100000, guid: abde790b0e482fe4b9630dd01f48d1eb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat.Window
+    second: {fileID: 2100000, guid: e18c6ef04a08773499ba2b3f3dfd6c0e, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

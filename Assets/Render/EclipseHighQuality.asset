@@ -15,9 +15,10 @@ MonoBehaviour:
   renderSettings:
     environmentLighting: 1
     environmentReflection: 1
-    shadowDistance: 600
-    volumeShadowSamples: 8
-    volumeShadowBlur: 0
+    shadowDistance: 100
+    softShadowMode: 2
+    softShadowSamples: 4
+    shadowBlur: 0.1
     dirShadowAtlas: 8192
     cascadeCount: 4
     cascadeRatio1: 0.02

@@ -42,6 +42,7 @@ public class ShapeTrailRenderer : MonoBehaviour
     public bool usePhysics;
 
     public Transform endAttachment;
+    [Range(0,1)]public float errorCorrection;
 
     public float startSpeed;
     public Vector3 force;
@@ -105,7 +106,7 @@ public class ShapeTrailRenderer : MonoBehaviour
         compute.SetBuffer(kernel, "outputVertices", outputVertexBuffer);
         compute.SetBuffer(kernel, "outputIndices", outputIndexBuffer);
 
-        int threadGroups = Mathf.CeilToInt(outputVertCount / 64f);
+        int threadGroups = Mathf.CeilToInt(outputVertCount / 128f);
         compute.Dispatch(kernel, threadGroups, 1, 1);
 
          // Read back modified data
@@ -183,35 +184,77 @@ public class ShapeTrailRenderer : MonoBehaviour
             Debug.DrawRay(trail[id].position,Vector3.Cross(dir,Vector3.right),Color.blue);
         }
 
-        trail[0].position = transform.position;
-
-        if(id>0)
+        if(id==0)
         {
-            Vector3 dir = (trail[id].position-trail[id-1].position);
-            Vector3 targetPos = trail[id-1].position + dir.normalized*length/(trail.Count-1);
-            Vector3 springVector = (targetPos - trail[id].position);
-            trail[id].velocity -= springVector * spring * Time.fixedDeltaTime;
-            trail[id].velocity -= trail[id].velocity * damp * Time.fixedDeltaTime;
-            trail[id].velocity += force * Time.fixedDeltaTime;
-
-            trail[id].position += trail[id].velocity * Time.fixedDeltaTime;
-
-            Vector3 nDir = (trail[id].position-trail[id-1].position);
-            targetPos = trail[id-1].position + nDir.normalized*length/(trail.Count-1);
-            trail[id].position = targetPos;
-
-            if(collide == true)
+            trail[0].position = transform.position;
+            return;
+        }
+        float segmentLength = length/(trail.Count - 1);
+        if(endAttachment == null)
+        {
+            if(id>0)
             {
-                RaycastHit hit;
-                if(Physics.Raycast(trail[id].position,trail[id].velocity,out hit,collisionRadius))
+                Vector3 springForce;
+                Vector3 dampForce;
+                Vector3 target;
+
+                    //previous point
+                Vector3 prevPos = trail[id-1].position;
+                Vector3 toPrev = (prevPos - trail[id].position);
+                target = prevPos - toPrev.normalized * segmentLength;
+                springForce = (target - trail[id].position) * spring * Time.fixedDeltaTime;
+                    
+                trail[id].velocity += springForce;
+                    
+                //next point
+                if(id+1 < trail.Count)
                 {
-                    trail[id].velocity = Vector3.ProjectOnPlane(trail[id].velocity,hit.normal);
-                    trail[id].position = hit.point+hit.normal*collisionRadius;
+                    Vector3 nextPos = trail[id+1].position;
+                    Vector3 toNext = (nextPos - trail[id].position);
+                    target = nextPos - toNext.normalized * segmentLength; 
+
+                    springForce = (target - trail[id].position) * spring * Time.fixedDeltaTime;
+                    trail[id].velocity += springForce;
+                }
+
+                //damp
+                dampForce = trail[id].velocity * damp * Time.fixedDeltaTime;
+                trail[id].velocity -= dampForce;
+
+                trail[id].velocity += force * Time.fixedDeltaTime;
+                Vector3 tempPos = trail[id].position + trail[id].velocity * Time.fixedDeltaTime;
+
+                if (collide == true)
+                {
+                    RaycastHit hit;
+                    Vector3 moveDir = trail[id].velocity.normalized;
+
+                    if (Physics.Raycast(trail[id].position, moveDir, out hit, collisionRadius))
+                    {
+                        trail[id].position = hit.point + hit.normal * collisionRadius;
+                        trail[id].velocity = Vector3.zero;
+                    }
+                    else
+                    {
+                        trail[id].position = tempPos;
+                    }
+
+                    Vector3 delta = trail[id].position - trail[id-1].position;
+                    float error = delta.magnitude - segmentLength;
+                    trail[id].position -= delta.normalized*error*errorCorrection;
+                    return;
                 }
             }
-
-            //trail[id].velocity = Vector3.SmoothDamp(trail[id].velocity,Vector3.zero, ref refVelo, .5f);
         }
+        if(endAttachment != null)
+        {
+            Vector3 dir = endAttachment.position - transform.position;
+            segmentLength = dir.magnitude/trail.Count;
+            Vector3 targetPos = transform.position + dir.normalized*segmentLength*id;
+            
+            trail[id].position = Vector3.Lerp(trail[id].position,targetPos,0.25f);//trail[id].velocity;
+        }
+        //end
 
         if(endAttachment != null && id == trail.Count-1)
         {

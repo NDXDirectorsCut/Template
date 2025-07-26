@@ -11,6 +11,14 @@ namespace Enigma
         public ActionInput jump;
         [Header("Variables")]
         public float jumpForce;
+        bool landed = true;
+        bool jumping = false;
+        float landTime;
+        bool additiveJump;
+        public float additiveJumpForce;
+        public float jumpTime;
+
+        float rayHold;
 
         // Start is called before the first frame update
         void Start()
@@ -22,19 +30,51 @@ namespace Enigma
         void FixedUpdate()
         {
             if(entity.grounded == true && entity.GetState() != "Jump")
-            {
-                if(jump.GetInput()!=0 && entity.ChangeState("Jump"))
+            {  
+                if(landed == false)
                 {
-                    StartCoroutine(Jump(jumpForce,Vector3.up));
+                    landed = true;
+                    landTime = Time.time;
                 }
+                if(Time.time-landTime>0.1f && jump.GetInput()!=0 && entity.ChangeState("Jump"))
+                {
+                    StartCoroutine(Jump(entity.normal,jumpForce,additiveJumpForce));
+                }
+            }
+            if(jumping == true && entity.body.velocity.y > 0.2f)
+            {
+                jumping = true;
+                entity.ChangeState("Jump");
+            }
+            else
+            {
+                jumping = false;
             }
         }
 
-        IEnumerator Jump(float force, Vector3 dir)
+        IEnumerator Jump(Vector3 dir, float force, float additiveForce = 0)
         {
+            rayHold = entity.rayLength;
+            yield return new WaitForFixedUpdate();
+            landed = false;
+            jumping = true;
             entity.grounded = false;
+            entity.rayLength = 0;
             entity.body.velocity += dir*force;
-            yield return null;
+            float startTime = Time.time;
+            float time = 0;
+            while(time<jumpTime && entity.grounded == false && jump.GetInput()!=0 && entity.ChangeState("Jump"))
+            {
+                if(time>0.05f)
+                {
+                    entity.rayLength = rayHold/2;
+                    entity.body.velocity += dir*additiveForce*Time.fixedDeltaTime;
+                    jumping = true;
+                }
+                time = Time.time-startTime;
+                yield return new WaitForFixedUpdate();
+            }
+            entity.rayLength = rayHold;
         }
     }
 }

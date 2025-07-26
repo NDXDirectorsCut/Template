@@ -15,7 +15,7 @@ MonoBehaviour:
   renderSettings:
     environmentLighting: 1
     environmentReflection: 1
-    shadowDistance: 100
+    shadowDistance: 200
     softShadowMode: 2
     softShadowSamples: 4
     shadowBlur: 0.1

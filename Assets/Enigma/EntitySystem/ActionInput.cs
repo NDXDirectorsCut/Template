@@ -39,6 +39,15 @@ namespace Enigma
             return 0;
         }
 
+        public float GetInputUp()
+        {
+            if(inputType == InputType.Fixed)
+            {
+                return Input.GetButtonUp(name) ? 1 : 0;
+            }
+            return 0;
+        }
+
         bool isAxis(string name)
         {
             try

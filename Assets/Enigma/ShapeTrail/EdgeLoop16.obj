@@ -1,0 +1,26 @@
+# Circle with 8 perimeter vertices + 1 center, with complete faces for Unity import
+g Circle
+
+# Perimeter vertices (counter-clockwise, X-Z plane)
+v 0.707107 0.000000 -0.707107
+v 0.000000 0.000000 -1.000000
+v -0.707107 0.000000 -0.707107
+v -1.000000 0.000000 0.000000
+v -0.707107 0.000000 0.707107
+v 0.000000 0.000000 1.000000
+v 0.707107 0.000000 0.707107
+v 1.000000 0.000000 0.000000
+
+# Center vertex
+v 0.000000 0.000000 0.000000
+
+# Triangles (CCW fan from center vertex = vertex 9)
+f 9 1 2
+f 9 2 3
+f 9 3 4
+f 9 4 5
+f 9 5 6
+f 9 6 7
+f 9 7 8
+f 9 8 1 
+

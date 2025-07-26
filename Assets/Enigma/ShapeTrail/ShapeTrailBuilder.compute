@@ -1,0 +1,70 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel ShapeTrailMain
+
+
+struct VertexData 
+{
+    float3 position;
+    float3 normal;
+};
+
+StructuredBuffer<VertexData> inputVertices;
+StructuredBuffer<float3> segmentPositions;
+
+RWStructuredBuffer<VertexData> outputVertices;
+RWStructuredBuffer<uint> outputIndices;
+
+
+int vertexCount;
+int points;
+float radius;
+
+[numthreads(128,1,1)]
+void ShapeTrailMain (uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x;
+    uint totalVertices = vertexCount * points;
+    if(index >= totalVertices) return;
+    
+    uint segmentIndex = index/vertexCount;
+    uint localIndex = index%vertexCount;    
+
+    VertexData v = inputVertices[localIndex];
+
+    float3 segmentPos = segmentPositions[segmentIndex];
+    float3 fPos = segmentIndex < points-1 ? segmentPositions[segmentIndex+1] : float3(0,0,0);
+    
+    float3 forward = normalize(fPos - segmentPos);
+    float3 refDir = float3(0, 1, 0);
+    if (abs(dot(refDir, forward)) > 0.99f)
+        refDir = float3(0.1, 1, 0);
+
+    float3 right = normalize(cross(refDir, forward));
+    float3 up = cross(forward, right);
+    
+    
+    float3 localPos = v.position * radius;
+    v.normal = localPos.x * right + localPos.z * up;
+    v.position = segmentPos + localPos.x * right + localPos.z * up;
+
+    outputVertices[index] = v;
+
+    if (segmentIndex < points - 1 && localIndex < vertexCount - 1)
+    {
+        uint curr = segmentIndex * vertexCount + localIndex;
+        uint next = curr + vertexCount;
+        uint currNext = curr + 1;
+        uint nextNext = currNext + vertexCount;
+
+        uint quadIndex = (segmentIndex * (vertexCount - 1) + localIndex) * 6;
+
+        outputIndices[quadIndex + 0] = curr;
+        outputIndices[quadIndex + 1] = next;
+        outputIndices[quadIndex + 2] = currNext;
+
+        outputIndices[quadIndex + 3] = currNext;
+        outputIndices[quadIndex + 4] = next;
+        outputIndices[quadIndex + 5] = nextNext;
+    }
+
+}

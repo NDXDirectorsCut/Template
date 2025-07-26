@@ -18,7 +18,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Face
-    second: {fileID: 2100000, guid: b7a74b55d178c3a42bed61bad1fc8928, type: 2}
+    second: {fileID: 2100000, guid: 80d6074e2eaec344c8a89a15a7934c7f, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -43,12 +43,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Red
-    second: {fileID: 2100000, guid: 9b4b6618c9b770840b2ae601ce0fa390, type: 2}
+    second: {fileID: 2100000, guid: 932fd63a63fca384b8c10c1d44a0ea06, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Rubber
-    second: {fileID: 2100000, guid: 1a64d58bd30217c418492884e9b73de2, type: 2}
+    second: {fileID: 2100000, guid: 4bd99b28510d2ce4ab2fd79081023699, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -58,7 +58,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Mat.Wood
-    second: {fileID: 2100000, guid: 10c5edf8d78d58a47b80e8f6e9abae74, type: 2}
+    second: {fileID: 2100000, guid: c3946f047e10bcd479781d07edf92ca1, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

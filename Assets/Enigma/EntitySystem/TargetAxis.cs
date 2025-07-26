@@ -2,6 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+struct ShareAxis
+{
+    public Vector3 forward;
+    public Vector3 up;
+    public Vector3 right;
+}
+
 public class TargetAxis : MonoBehaviour
 {
     public Transform target;

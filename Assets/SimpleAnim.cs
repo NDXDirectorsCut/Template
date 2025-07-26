@@ -24,5 +24,6 @@ public class SimpleAnim : MonoBehaviour
             animator.CrossFadeInFixedTime(state,.25f);
         }
         animator.SetFloat("Velocity",entity.body.velocity.magnitude);
+        animator.SetFloat("Grounded",entity.grounded? 1 : 0);
     }
 }

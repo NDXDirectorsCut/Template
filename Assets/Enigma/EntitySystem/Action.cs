@@ -6,6 +6,7 @@ namespace Enigma
 {
     public class Action : MonoBehaviour
     {
+        public bool playerControlled;
         // Start is called before the first frame update
         void Start()
         {

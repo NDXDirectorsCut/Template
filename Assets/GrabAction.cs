@@ -56,7 +56,6 @@ public class GrabAction : Action
                     entity.body.velocity = Vector3.zero;
                     animator.SetFloat("ActionFloat",Mathf.Clamp(holdTime,0,3));
                     ThrowingBehavior(grabObject);
-                    Debug.Log(holdTime);
                 }
             }
             if(grabObject != null && holdTime != 0 && grab.GetInput() == 0)
@@ -70,6 +69,7 @@ public class GrabAction : Action
                     float throwForce = Mathf.Clamp(holdTime,0,3)*Mathf.Clamp(holdTime,0,3)*throwStrength;
                     Vector3 tangent = Vector3.Cross(holdDir,transform.up);
                     objBody.velocity = (holdDir+tangent).normalized * throwForce + Vector3.up*0.1f;
+                    objBody.angularVelocity = -Vector3.up * objBody.velocity.magnitude;
                     grabObject = null;
                     shapeTrail.endAttachment = null;
                     releaseTime = 0;

@@ -17,7 +17,8 @@ Jocul este creat in Unity 2022.3 LTS, fiind programat in C#. Grafica este realiz
 Modelele 3D sunt realizate in Blender, Texturile sunt create in Procreate si editate in Gimp si Paint.NET. 
 
 ## Eclipse Render Pipeline 
-Eclipse este un Render Pipeline creat special pentru Disjointed care înlocuiește partea de rendering din Unity (in loc de URP/HDRP/Built-In). Programat în o combinație de HLSL si C#
+Eclipse este un Render Pipeline programat în HLSL si C# creat special pentru Disjointed care înlocuiește partea de rendering din Unity (in loc de URP/HDRP/Built-In). 
+Render Pipeline-ul a fos creat cu ajutorul seriei de tutoriale [**Custom SRP de Catlike Coding**](https://catlikecoding.com/unity/tutorials/custom-srp/)
 
 **Features:**
 * **Physically Based Rendering.** Materialele au suport pentru Specularity, Roughness și Metalness controlate prin texturi.

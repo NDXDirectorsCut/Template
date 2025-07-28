@@ -1,6 +1,7 @@
-# Disjointed
-![]()
+<img width="1076" height="589" alt="Logo" src="https://github.com/user-attachments/assets/2ac66d61-3538-4d37-9780-24b0e54ccba1"/>
+
 Disjointed este un joc 3D Puzzle/Platformer într-o lume de jucării abandonate. Protagonista este o păpușă cu sforile rupte pe care le folosește pentru a se deplasa și controla celelalte jucării din jurul ei.
+
 
 ## Game Mechanics
 * **Sprinting.**
@@ -13,6 +14,7 @@ Disjointed este un joc 3D Puzzle/Platformer într-o lume de jucării abandonate.
 
 # **Detalii Tehnice**
 Jocul este creat in Unity 2022.3 LTS, fiind programat in C#. Grafica este realizată printr-un Render Pipeline custom numit Eclipse iar mecanicile jocului sunt realizate printr-un framework custom numit Enigma.
+Modelele 3D sunt realizate in Blender, Texturile sunt create in Procreate si editate in Gimp si Paint.NET. 
 
 ## Eclipse Render Pipeline 
 Eclipse este un Render Pipeline creat special pentru Disjointed care înlocuiește partea de rendering din Unity (in loc de URP/HDRP/Built-In). Programat în o combinație de HLSL si C#
@@ -32,7 +34,6 @@ Eclipse este un Render Pipeline creat special pentru Disjointed care înlocuieș
 
 ## Enigma Framework
 Enigma este un framework creat pentru a face mai ușor procesul de a crea caractere cu diverse abilități prin entități și acțiuni.
-
 Mecanicile jocului sunt implementate folosind acțiuni care schimba starea entității controlate. Jucatorul controleaza acțiunile entității prin ActionInput.
 
 **ActionInput** este un sistem care apeleaza la InputManager-ul din Unity pentru a-i extinde functionalitatea (Rebindable Inputs, Converting Analog to Binary Inputs)
@@ -44,8 +45,7 @@ Mecanicile jocului sunt implementate folosind acțiuni care schimba starea entit
 
  
 ## Inspirații 
-* Alice Madness Returns
-American McGee's Alice
+* Alice Madness Returns & American McGee's Alice
 * Deltarune
 * Little Inferno
 * Half-Life 2

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2192425815550705438}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GreenBlock
   m_TagString: Grab
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 6647107861116015897}
   - component: {fileID: 1176857152128483349}
   - component: {fileID: 9060204180426388963}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BlockEntity
   m_TagString: Grab
   m_Icon: {fileID: 0}

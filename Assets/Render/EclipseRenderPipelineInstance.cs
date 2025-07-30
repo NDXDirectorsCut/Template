@@ -555,5 +555,7 @@ public class EclipseRenderPipelineInstance : RenderPipeline
                 shdBuffer.ReleaseTemporaryRT(othShadowAtlasId);
 
             context.Submit();
+            cmdBuffer.Clear();
+            shdBuffer.Clear();
     }
 }

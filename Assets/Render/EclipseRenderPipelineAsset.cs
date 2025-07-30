@@ -69,7 +69,7 @@ public class EclipseRenderPipelineAsset : RenderPipelineAsset
 {
     // This data can be defined in the Inspector for each Render Pipeline Asset
     [SerializeField]
-    RndSettings renderSettings;
+    public RndSettings renderSettings;
     
         // Unity calls this method before rendering the first frame.
         // If a setting on the Render Pipeline Asset changes, Unity destroys the current Render Pipeline Instance and calls this method again before rendering the next frame.

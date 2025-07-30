@@ -98,6 +98,7 @@ Material:
     - _ClearcoatInv: 0.38
     - _ClearcoatRgh: 0.08
     - _Clipping: 0
+    - _CullMode: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -112,6 +113,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.7
+    - _ShadowCullMode: 1
     - _SheenInv: 0
     - _SheenPow: 4
     - _SmoothnessTextureChannel: 0
@@ -125,7 +127,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ScaleOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ScaleOffset: {r: 25, g: 25, b: 0, a: 0}
     - _SheenTint: {r: 1, g: 1, b: 1, a: 1}
     - _SpecularTint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

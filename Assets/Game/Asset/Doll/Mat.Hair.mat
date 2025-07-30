@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 777067df1cad77f4fb5041e98664114d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _CLIPPING
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -97,10 +98,10 @@ Material:
     - _BumpScale: 1
     - _ClearcoatInv: 0.05
     - _ClearcoatRgh: 0.5
-    - _Clipping: 0
+    - _Clipping: 1
     - _CullMode: 0
     - _Culling: 0
-    - _Cutoff: 0.259
+    - _Cutoff: 0.47
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _EmissionInv: 0
@@ -114,6 +115,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoughnessInv: 0.15
+    - _ShadowCullMode: 1
     - _SheenInv: 0.5
     - _SheenPow: 4
     - _SmoothnessTextureChannel: 0
